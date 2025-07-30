@@ -1,0 +1,60 @@
+﻿@model List<DAL.Data.Models.CourseChapter>
+
+@{
+    ViewData["Title"] = "قائمة الفصول";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+
+<section class="container my-5">
+    <div class="card shadow rounded-4 border-0">
+        <div class="card-body">
+            <h3 class="text-center text-primary mb-4">
+                <i class="fas fa-list-alt me-2"></i>قائمة الفصول
+            </h3>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover text-center align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>عنوان الفصل</th>
+                                <th>وقت البدء</th>
+                                <th>وقت الانتهاء</th>
+                                <th>الخيارات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Title</td>
+                                    <td>@item.StartTime</td>
+                                    <td>@item.EndTime</td>
+                                    <td>
+                                        <a asp-action="EditChapter" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit me-1"></i>تعديل
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <a asp-action="Courses" class="btn btn-sm btn-outline-dark">Back To List</a>
+                </div>
+            }
+            else
+            {
+                <p class="text-center text-muted">لا توجد فصول مضافة بعد.</p>
+            }
+        </div>
+    </div>
+</section>
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>

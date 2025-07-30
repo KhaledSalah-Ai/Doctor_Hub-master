@@ -1,0 +1,75 @@
+﻿@model List<DAL.Data.Models.Course>
+
+@{
+    ViewData["Title"] = "إدارة الكورسات"; 
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+
+<section class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold">
+            <i class="fas fa-graduation-cap me-2"></i> قائمة الكورسات
+        </h4>
+        <a class="btn btn-success" asp-action="AddCourse">
+            <i class="fas fa-plus"></i> إضافة كورس جديد
+        </a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            لا توجد كورسات مضافة حتى الآن.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>العنوان</th>
+                        <th>السعر</th>
+                        <th>الحالة</th>
+                        <th>عدد الفصول</th>
+                        <th>الخيارات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var course in Model)
+                    {
+                        <tr>
+                            <td>@course.Title</td>
+                            <td>@course.Price.ToString("C", new System.Globalization.CultureInfo("ar-EG"))</td>
+                            <td>
+                                @if (course.IsActive)
+                                {
+                                    <span class="badge bg-success">نشط</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">غير نشط</span>
+                                }
+                            </td>
+                            <td>@(course.Chapters?.Count() ?? 0)</td>
+                            <td>
+                                <a class="btn btn-sm btn-warning me-1" asp-action="EditCourse" asp-route-id="@course.Id">
+                                    <i class="fas fa-edit"></i> تعديل
+                                </a>
+                                <a class="btn btn-sm btn-danger me-1" asp-action="DeleteCourse" asp-route-id="@course.Id">
+                                    <i class="fas fa-trash-alt"></i> حذف
+                                </a>
+                                <a class="btn btn-sm btn-primary me-1" asp-action="AddChapter" asp-route-id="@course.Id">
+                                    <i class="fas fa-plus"></i> إضافة فصل
+                                </a>
+                                <a class="btn btn-sm btn-info text-white" asp-action="Chapters" asp-route-id="@course.Id">
+                                    <i class="fas fa-list-ul"></i> عرض الفصول
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

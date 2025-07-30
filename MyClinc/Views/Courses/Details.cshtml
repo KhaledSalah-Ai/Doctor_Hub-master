@@ -1,0 +1,82 @@
+﻿@model DAL.Data.Models.Course
+@{
+    ViewData["Title"] = "تفاصيل الكورس";
+}
+
+<section class="container mt-5 mb-4">
+    <div class="card shadow-sm rounded-4 p-4">
+        <div class="row">
+            <!-- الفيديو في اليمين -->
+            <div class="col-md-5 order-md-2 mb-4 mb-md-0">
+                <video width="100%" height="auto" controls class="rounded-3 shadow">
+                    <source src="~/videos/@Model.TeaserVideoUrl" type="video/mp4">
+                    المتصفح لا يدعم الفيديو
+                </video>
+            </div>
+
+            <!-- التفاصيل في الشمال -->
+            <div class="col-md-7 order-md-1">
+                <h4 class="text-primary mb-4">
+                    <i class="fas fa-info-circle me-2"></i>تفاصيل الكورس
+                </h4>
+
+                <div class="mb-3">
+                    <h5 class="fw-bold text-secondary">عنوان الكورس:</h5>
+                    <p class="fs-5">@Model.Title</p>
+                </div>
+
+                <div class="mb-3">
+                    <h5 class="fw-bold text-secondary">الوصف المختصر:</h5>
+                    <p>@Model.ShortDescription</p>
+                </div>
+
+                <div class="mb-3">
+                    <h5 class="fw-bold text-secondary">الفوائد:</h5>
+                    <p>@Model.Benefits</p>
+                </div>
+
+                <div class="mb-3">
+                    <h5 class="fw-bold text-secondary">السعر:</h5>
+                    <p class="text-success fw-bold">
+                        @Model.Price.ToString("C", new System.Globalization.CultureInfo("ar-EG"))
+                    </p>
+                </div>
+
+                @if (Model.Chapters != null && Model.Chapters.Any())
+                {
+                    <div class="mb-3">
+                        <h5 class="fw-bold text-secondary">فصول الكورس:</h5>
+                        <ul class="list-group list-group-flush">
+                            @foreach (var item in Model.Chapters)
+                            {
+                                <li class="list-group-item">@item.Title</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <h5 class="fw-bold text-secondary">الجمهور المستهدف:</h5>
+                    <p>@Model.TargetAudience</p>
+                </div>
+
+                <div class="mt-4">
+                    <a class="btn btn-secondary rounded-pill me-2" href="/Courses/Enroll/@Model.Id">
+                        <i class="fas fa-arrow-right me-1"></i>حجز الكورس
+                    </a>
+                    <a class="btn btn-outline-secondary rounded-pill" href="/Courses/Index">
+                        <i class="fas fa-arrow-right me-1"></i>العودة للكورسات
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>

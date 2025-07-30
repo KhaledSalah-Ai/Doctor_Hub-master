@@ -1,0 +1,40 @@
+﻿@model DAL.Data.Models.Course
+
+@{
+    ViewData["Title"] = "حذف الكورس";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // لو بتستخدم Layout
+}
+
+<section class="container mt-5">
+    <h2 class="my-4 text-danger">هل أنت متأكد من حذف الكورس؟</h2>
+
+    <div class="card shadow p-3 mb-4">
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <img src="@Url.Content("~/images/" + Model.ImageUrl)" alt="@Model.Title" class="img-fluid rounded" style="max-width: 100%;" />
+            </div>
+            <div class="col-md-8">
+                <h4 class="mb-3">@Model.Title</h4>
+                <p><strong>السعر:</strong> @Model.Price.ToString("C")</p>
+                <p><strong>الجمهور المستهدف:</strong> @Model.TargetAudience</p>
+
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="ImageUrl" />
+
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-danger me-2">تأكيد الحذف</button>
+                        <a asp-action="Courses" class="btn btn-secondary">إلغاء</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>

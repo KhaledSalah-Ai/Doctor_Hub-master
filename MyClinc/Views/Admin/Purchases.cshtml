@@ -1,0 +1,60 @@
+﻿@model List<DAL.Data.Models.CoursePurchaseRequest>
+@{
+    ViewData["Title"] = "طلبات الشراء";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+
+<section class="container mt-5 mb-4">
+    <div class="card shadow-sm rounded-4 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="mb-0 text-primary"><i class="fas fa-shopping-cart me-2"></i>طلبات شراء الكورسات</h4>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>البريد الإلكتروني</th>
+                        <th>الكورس</th>
+                        <th>السعر</th>
+                        <th>الحالة</th>
+                        <th>الخيارات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.User.Email</td>
+                            <td>@item.Course.Title</td>
+                            <td>@item.Course.Price.ToString("C", new System.Globalization.CultureInfo("ar-EG"))</td>
+                            <td>
+                                @if (item.IsApproved)
+                                {
+                                    <span class="badge bg-success px-3 py-2">نعم</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger px-3 py-2">لا</span>
+                                }
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-warning rounded-pill px-3" asp-action="EditPurchase" asp-route-id="@item.Id">
+                                    <i class="fas fa-edit me-1"></i>تعديل
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>

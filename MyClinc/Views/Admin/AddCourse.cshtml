@@ -1,0 +1,104 @@
+﻿@model MyClinc.ViewModels.CourseWithImageFileViewModel
+
+@{
+    ViewBag.Title = "إضافة كورس جديد";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow rounded-4 border-0">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4 text-primary">
+                        <i class="fas fa-chalkboard-teacher me-2"></i>إضافة كورس جديد
+                    </h3>
+
+                    <form asp-action="AddCourse" asp-controller="Admin" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">عنوان الكورس</label>
+                            <input asp-for="Title" class="form-control" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ShortDescription" class="form-label">وصف مختصر</label>
+                            <input asp-for="ShortDescription" class="form-control" />
+                            <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TargetAudience" class="form-label">الفئة المستهدفة</label>
+                            <input asp-for="TargetAudience" class="form-control" />
+                            <span asp-validation-for="TargetAudience" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="TeaserVideoFile" class="form-label">فيديو تعريفي (Teaser)</label>
+                            <input asp-for="TeaserVideoFile" type="file" class="form-control" />
+                            <span asp-validation-for="TeaserVideoFile" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Benefits" class="form-label">الفوائد</label>
+                            <textarea asp-for="Benefits" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Benefits" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Price" class="form-label">السعر</label>
+                            <input asp-for="Price" class="form-control" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="VideoTitle" class="form-label">عنوان الفيديو</label>
+                            <input asp-for="VideoTitle" class="form-control" />
+                            <span asp-validation-for="VideoTitle" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="GoogleDriveLink" class="form-label">رابط Google Drive</label>
+                            <input asp-for="GoogleDriveLink" class="form-control" />
+                            <span asp-validation-for="GoogleDriveLink" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="ImageFile" class="form-label">صورة الكورس</label>
+                            <input asp-for="ImageFile" type="file" class="form-control" />
+                            <span asp-validation-for="ImageFile" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus-circle me-1"></i> إضافة الكورس
+                            </button>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <a asp-action="Courses" class="btn btn-sm btn-outline-dark">Back To List</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>
+
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>

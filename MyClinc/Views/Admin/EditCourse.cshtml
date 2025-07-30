@@ -1,0 +1,76 @@
+﻿@model MyClinc.ViewModels.CourseWithImageFileViewModel
+
+@{
+    ViewBag.Title = "تعديل الكورس";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+
+<section class="container mt-5">
+    <h2 class="mb-4 text-primary">تعديل الكورس</h2>
+
+    <form asp-action="EditCourse" method="post" enctype="multipart/form-data" class="shadow p-4 rounded bg-light">
+        @* Hidden ID *@
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group mb-3">
+            <label asp-for="Title" class="form-label">عنوان الكورس</label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="ShortDescription" class="form-label">وصف مختصر</label>
+            <input asp-for="ShortDescription" class="form-control" />
+            <span asp-validation-for="ShortDescription" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="TargetAudience" class="form-label">الجمهور المستهدف</label>
+            <input asp-for="TargetAudience" class="form-control" />
+            <span asp-validation-for="TargetAudience" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="TeaserVideoFile" class="form-label">فيديو تشويقي</label>
+            <input asp-for="TeaserVideoFile" type="file" class="form-control" />
+            <span asp-validation-for="TeaserVideoFile" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Benefits" class="form-label">الفوائد</label>
+            <textarea asp-for="Benefits" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Benefits" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Price" class="form-label">السعر</label>
+            <input asp-for="Price" class="form-control" />
+            <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-4">
+            <label class="form-label d-block">هل الكورس مفعل؟</label>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="IsActive" value="true" id="activeTrue">
+                <label class="form-check-label" for="activeTrue">نعم</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="IsActive" value="false" id="activeFalse">
+                <label class="form-check-label" for="activeFalse">لا</label>
+            </div>
+            <span asp-validation-for="IsActive" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="ImageFile" class="form-label">صورة جديدة للكورس</label>
+            <input asp-for="ImageFile" type="file" class="form-control" />
+            <span asp-validation-for="ImageFile" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">تحديث الكورس</button>
+        <div class="d-grid mt-4">
+            <a asp-action="Courses" class="btn btn-sm btn-outline-dark">Back To List</a>
+        </div>
+    </form>
+</section>

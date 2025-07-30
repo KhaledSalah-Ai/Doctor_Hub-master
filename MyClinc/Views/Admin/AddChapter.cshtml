@@ -1,0 +1,60 @@
+﻿@model MyClinc.ViewModels.CourseShapterViewModel
+
+@{
+    ViewData["Title"] = "إضافة فصل جديد";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+}
+
+<section class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow rounded-4 border-0">
+                <div class="card-body p-4">
+                    <h3 class="text-center text-primary mb-4">
+                        <i class="fas fa-book-open me-2"></i>إضافة فصل جديد
+                    </h3>
+
+                    <form asp-action="AddChapter" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">عنوان الفصل</label>
+                            <input asp-for="Title" class="form-control" placeholder="أدخل عنوان الفصل" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="StartTime" class="form-label">وقت البدء</label>
+                            <input asp-for="StartTime" class="form-control" placeholder="مثال: 00:00" />
+                            <span asp-validation-for="StartTime" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="EndTime" class="form-label">وقت الانتهاء</label>
+                            <input asp-for="EndTime" class="form-control" placeholder="مثال: 05:30" />
+                            <span asp-validation-for="EndTime" class="text-danger"></span>
+                        </div>
+
+                        <input asp-for="CourseId" type="hidden" value="@Model.CourseId" />
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus-circle me-1"></i> إضافة الفصل
+                            </button>
+                        </div>
+                        <div class="d-grid mt-4">
+
+                        <a asp-action="Courses" class="btn btn-sm btn-outline-dark">Back To List</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>
