@@ -1,0 +1,59 @@
+﻿@model DAL.Data.Models.Consultation
+
+@{
+    ViewData["Title"] = "اختر موعد الاستشارة";
+}
+
+<div class="container mt-5 mb-5">
+    <!-- خليت في margin من تحت -->
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-primary text-white text-center rounded-top">
+                    <h4 class="mb-0">اختر موعد الاستشارة</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="ChooseAvail" method="post">
+                        @Html.HiddenFor(m => m.PatientName)
+                        @Html.HiddenFor(m => m.PhoneNumber)
+                        @Html.HiddenFor(m => m.FullPhoneNumber)
+                        @Html.HiddenFor(m => m.BirthDate)
+                        @Html.HiddenFor(m => m.BirthCountry)
+                        @Html.HiddenFor(m => m.CurrentCountry)
+                        @Html.HiddenFor(m => m.Gender)
+                        @Html.HiddenFor(m => m.MaritalStatus)
+                        @Html.HiddenFor(m => m.WorkOrStudyPlace)
+                        @Html.HiddenFor(m => m.MedicalSpecialtyId)
+                        @Html.HiddenFor(m => m.ConsultationFee)
+
+                        <div class="form-group mb-4">
+                            <label for="AvailabilityId" class="form-label fw-bold">المواعيد المتاحة</label>
+                            <select id="AvailabilityId" name="AvailabilityId"
+                                    class="form-select shadow-sm"
+                                    asp-items="ViewBag.Availabilities">
+                                <option value="">-- اختر الموعد المناسب --</option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success btn-lg shadow">
+                                <i class="bi bi-calendar-check"></i> تأكيد الحجز
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center text-muted small">
+                    بمجرد تأكيد الحجز، سيتم التواصل معك لتأكيد الموعد.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>

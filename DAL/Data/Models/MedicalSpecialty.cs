@@ -26,6 +26,7 @@ namespace DAL.Data.Models
         [Display(Name = "رمز الأيقونة (اختياري)")]
         public string? IconClass { get; set; }
         public bool IsVisibleToPatient { get; set; } = false;
+        public Advisor Advisor { get; set; }
 
         public ICollection<Consultation>? Consultations { get; set; }
         public ICollection<DoctorSpecialty>? DoctorSpecialties { get; set; }

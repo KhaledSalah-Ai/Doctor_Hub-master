@@ -155,9 +155,9 @@
             <div class="d-flex align-items-center">
                 <label class="fw-bold me-3">تحديث حالة الشراكة:</label>
                 <select id="statusSelect" class="form-select me-3" style="width: auto;">
-                    <option value="Pending" @@(Model.Status == DAL.Data.Models.PartnershipStatus.Pending ? "selected" : "")>قيد المراجعة</option>
-                    <option value="Approved" @@(Model.Status == DAL.Data.Models.PartnershipStatus.Approved ? "selected" : "")>مقبول</option>
-                    <option value="Rejected" @@(Model.Status == DAL.Data.Models.PartnershipStatus.Rejected ? "selected" : "")>مرفوض</option>
+                    <option value="Pending" selected=@(Model.Status == DAL.Data.Models.PartnershipStatus.Pending)>قيد المراجعة</option>
+                    <option value="Approved" selected=@(Model.Status == DAL.Data.Models.PartnershipStatus.Approved)>مقبول</option>
+                    <option value="Rejected" selected="@(Model.Status == DAL.Data.Models.PartnershipStatus.Rejected)">مرفوض</option>
                 </select>
                 <button class="btn btn-primary" onclick="updatePartnershipStatus(@Model.Id)">
                     <i class="fas fa-save me-2"></i>تحديث الحالة

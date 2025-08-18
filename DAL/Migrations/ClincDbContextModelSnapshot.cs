@@ -22,6 +22,87 @@ namespace DAL.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("DAL.Data.Models.Advisor", b =>
+                {
+                    b.Property<int>("AdvisorId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AdvisorId"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MedicalSpecialtyId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AdvisorId");
+
+                    b.HasIndex("MedicalSpecialtyId")
+                        .IsUnique();
+
+                    b.ToTable("Advisors");
+
+                    b.HasData(
+                        new
+                        {
+                            AdvisorId = 1,
+                            Email = "doctor.cardiology@example.com",
+                            MedicalSpecialtyId = 1,
+                            Name = "د. أحمد المصري",
+                            Phone = "01001234567"
+                        },
+                        new
+                        {
+                            AdvisorId = 2,
+                            Email = "doctor.dermatology@example.com",
+                            MedicalSpecialtyId = 2,
+                            Name = "د. فاطمة الزهراء",
+                            Phone = "01117654321"
+                        });
+                });
+
+            modelBuilder.Entity("DAL.Data.Models.AdvisorAvailability", b =>
+                {
+                    b.Property<int>("AvailabilityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AvailabilityId"));
+
+                    b.Property<int>("AdvisorId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsBooked")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("AvailabilityId");
+
+                    b.HasIndex("AdvisorId");
+
+                    b.ToTable("advisorAvailabilities");
+                });
+
             modelBuilder.Entity("DAL.Data.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -120,6 +201,9 @@ namespace DAL.Migrations
                         .HasMaxLength(500)
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("AdvisorAvailabilityId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Allergies")
                         .IsUnicode(true)
@@ -244,6 +328,8 @@ namespace DAL.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ConsultationId");
+
+                    b.HasIndex("AdvisorAvailabilityId");
 
                     b.HasIndex("MedicalSpecialtyId");
 
@@ -455,7 +541,7 @@ namespace DAL.Migrations
                             IsApproved = true,
                             IsVisible = true,
                             Rating = 5,
-                            ReviewDate = new DateTime(2025, 7, 15, 14, 10, 29, 143, DateTimeKind.Local).AddTicks(3545),
+                            ReviewDate = new DateTime(2025, 8, 4, 1, 1, 17, 979, DateTimeKind.Local).AddTicks(1177),
                             ReviewText = "خدمة ممتازة ومتابعة دقيقة من الدكتور. استفدت كثيراً من برنامج التغذية العلاجية وحققت نتائج رائعة."
                         },
                         new
@@ -466,7 +552,7 @@ namespace DAL.Migrations
                             IsApproved = true,
                             IsVisible = true,
                             Rating = 5,
-                            ReviewDate = new DateTime(2025, 6, 29, 14, 10, 29, 143, DateTimeKind.Local).AddTicks(3597),
+                            ReviewDate = new DateTime(2025, 7, 18, 1, 1, 17, 979, DateTimeKind.Local).AddTicks(1250),
                             ReviewText = "أشكر الدكتور على الاهتمام والمتابعة المستمرة. العلاج النفسي ساعدني كثيراً في تحسين حالتي."
                         },
                         new
@@ -477,7 +563,7 @@ namespace DAL.Migrations
                             IsApproved = true,
                             IsVisible = true,
                             Rating = 4,
-                            ReviewDate = new DateTime(2025, 7, 8, 14, 10, 29, 143, DateTimeKind.Local).AddTicks(3602),
+                            ReviewDate = new DateTime(2025, 7, 28, 1, 1, 17, 979, DateTimeKind.Local).AddTicks(1258),
                             ReviewText = "تجربة جيدة جداً مع العيادة. الطاقم الطبي محترف والخدمة سريعة ومنظمة."
                         });
                 });
@@ -811,7 +897,7 @@ namespace DAL.Migrations
                             PhoneNumber = "+966501234567",
                             Position = "مدير المستشفى",
                             Status = 1,
-                            SubmissionDate = new DateTime(2025, 5, 29, 14, 10, 29, 143, DateTimeKind.Local).AddTicks(3636)
+                            SubmissionDate = new DateTime(2025, 6, 18, 1, 1, 17, 979, DateTimeKind.Local).AddTicks(1294)
                         },
                         new
                         {
@@ -827,7 +913,7 @@ namespace DAL.Migrations
                             PhoneNumber = "+966557654321",
                             Position = "مدير التسويق",
                             Status = 0,
-                            SubmissionDate = new DateTime(2025, 6, 29, 14, 10, 29, 143, DateTimeKind.Local).AddTicks(3640)
+                            SubmissionDate = new DateTime(2025, 7, 18, 1, 1, 17, 979, DateTimeKind.Local).AddTicks(1301)
                         });
                 });
 
@@ -1017,13 +1103,43 @@ namespace DAL.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("DAL.Data.Models.Advisor", b =>
+                {
+                    b.HasOne("DAL.Data.Models.MedicalSpecialty", "MedicalSpecialty")
+                        .WithOne("Advisor")
+                        .HasForeignKey("DAL.Data.Models.Advisor", "MedicalSpecialtyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MedicalSpecialty");
+                });
+
+            modelBuilder.Entity("DAL.Data.Models.AdvisorAvailability", b =>
+                {
+                    b.HasOne("DAL.Data.Models.Advisor", "Advisor")
+                        .WithMany("Availabilities")
+                        .HasForeignKey("AdvisorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Advisor");
+                });
+
             modelBuilder.Entity("DAL.Data.Models.Consultation", b =>
                 {
+                    b.HasOne("DAL.Data.Models.AdvisorAvailability", "AdvisorAvailability")
+                        .WithMany()
+                        .HasForeignKey("AdvisorAvailabilityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DAL.Data.Models.MedicalSpecialty", "MedicalSpecialty")
                         .WithMany("Consultations")
                         .HasForeignKey("MedicalSpecialtyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AdvisorAvailability");
 
                     b.Navigation("MedicalSpecialty");
                 });
@@ -1148,6 +1264,11 @@ namespace DAL.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("DAL.Data.Models.Advisor", b =>
+                {
+                    b.Navigation("Availabilities");
+                });
+
             modelBuilder.Entity("DAL.Data.Models.ApplicationUser", b =>
                 {
                     b.Navigation("CoursePurchaseRequests");
@@ -1174,6 +1295,9 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("DAL.Data.Models.MedicalSpecialty", b =>
                 {
+                    b.Navigation("Advisor")
+                        .IsRequired();
+
                     b.Navigation("Consultations");
 
                     b.Navigation("DoctorSpecialties");

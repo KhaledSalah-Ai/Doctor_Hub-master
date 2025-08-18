@@ -152,8 +152,14 @@ namespace MyClinc.Controllers
         {
             var redirectResult = RedirectToLoginIfNotAdmin();
             if (redirectResult != null) return redirectResult;
-            
-            var consultations = await _consultationRepo.GetAllAsync();
+
+            // جلب الاستشارات مع Include للـ AdvisorAvailability و MedicalSpecialty
+            var consultations = await _dbContext.Consultations
+                .Include(c => c.MedicalSpecialty)
+                .Include(c => c.AdvisorAvailability) // هنا الإضافة المهمة
+                .OrderByDescending(c => c.BookingDate)
+                .ToListAsync();
+
             return View(consultations);
         }
 

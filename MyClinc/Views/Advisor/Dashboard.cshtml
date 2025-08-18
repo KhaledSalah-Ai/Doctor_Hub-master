@@ -1,0 +1,245 @@
+﻿@* @model DAL.Data.Models.Advisor
+@{
+    ViewData["Title"] = "لوحة التحكم";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h4 class="m-0 font-weight-bold text-primary">مرحباً بك، @Model.Name</h4>
+        <p class="mb-0">هنا يمكنك إدارة مواعيدك المتاحة.</p>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- نموذج إضافة موعد جديد -->
+            <div class="col-md-4 border-right">
+                <h5><i class="fas fa-plus-circle"></i> إضافة موعد جديد</h5>
+                <hr>
+                <form asp-action="CreateAvailability" asp-controller="Advisor" method="post">
+                    <div class="form-group mb-3">
+                        <label for="Date" class="control-label">التاريخ</label>
+                        <input type="date" name="Date" class="form-control" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="StartTime" class="control-label">وقت البدء</label>
+                        <input type="time" name="StartTime" class="form-control" required />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="DurationMinutes" class="control-label">المدة (بالدقائق)</label>
+                        <input type="number" name="DurationMinutes" class="form-control" value="30" required min="10" />
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-save"></i> حفظ الموعد
+                    </button>
+                </form>
+            </div>
+
+            <!-- عرض المواعيد الحالية -->
+            <div class="col-md-8">
+                <h5><i class="fas fa-calendar-alt"></i> قائمة المواعيد</h5>
+                <hr>
+                <div class="table-responsive">
+                    @if (Model.Availabilities.Any())
+                    {
+                        <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>التاريخ</th>
+                                    <th>وقت البدء</th>
+                                    <th>المدة</th>
+                                    <th>الحالة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var availability in Model.Availabilities)
+                                {
+                                    <tr>
+                                        <td>@availability.Date.ToString("dd-MM-yyyy")</td>
+                                        <td>@availability.StartTime.ToString(@"hh\:mm")</td>
+                                        <td>@availability.DurationMinutes دقيقة</td>
+                                        <td>
+                                            @if (availability.IsBooked)
+                                            {
+                                                <span class="badge badge-pill badge-danger ">محجوز</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-pill badge-success">متاح</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!availability.IsBooked)
+                                            {
+                                                <a asp-action="EditAvailability" asp-controller="Advisor" asp-route-id="@availability.AvailabilityId" class="btn btn-sm btn-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form asp-action="DeleteAvailability" asp-controller="Advisor" asp-route-id="@availability.AvailabilityId" method="post" ...>
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="حذف">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">لا يوجد إجراء متاح</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center">لا توجد مواعيد متاحة حالياً.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ *@
+ @model DAL.Data.Models.Advisor
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    ViewData["Title"] = "لوحة التحكم";
+    Layout = "~/Views/Shared/_AdvisorLayout.cshtml";
+}
+
+<!-- رسائل النجاح أو الخطأ -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h4 class="m-0 font-weight-bold text-primary">مرحباً بك، @Model.Name</h4>
+        <p class="mb-0">هنا يمكنك إدارة مواعيدك المتاحة.</p>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- نموذج إضافة موعد جديد -->
+            <div class="col-md-4 border-right">
+                <h5><i class="fas fa-plus-circle"></i> إضافة موعد جديد</h5>
+                <hr>
+                <form asp-action="AddAvailability" asp-controller="Advisor" method="post">
+                    <div class="form-group mb-3">
+                        <label for="Date" class="control-label">التاريخ</label>
+                        <input type="date" name="Date" class="form-control" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="StartTime" class="control-label">وقت البدء</label>
+                        <input type="time" name="StartTime" class="form-control" required />
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="DurationMinutes" class="control-label">المدة (بالدقائق)</label>
+                        <input type="number" name="DurationMinutes" class="form-control" value="30" required min="10" />
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-save"></i> حفظ الموعد
+                    </button>
+                </form>
+            </div>
+
+            <!-- عرض المواعيد الحالية -->
+            <div class="col-md-8">
+                <h5><i class="fas fa-calendar-alt"></i> قائمة المواعيد</h5>
+                <hr>
+                <div class="table-responsive">
+                    @if (Model.Availabilities.Any())
+                    {
+                        <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th><i class="fas fa-calendar-day"></i> التاريخ</th>
+                                    <th><i class="fas fa-clock"></i> وقت البدء</th>
+                                    <th>المدة</th>
+                                    <th>الحالة</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var availability in Model.Availabilities.OrderBy(a => a.Date).ThenBy(a => a.StartTime))
+                                {
+                                    <tr>
+                                        <td>@availability.Date.ToString("yyyy/MM/dd")</td>
+                                        <td>@availability.StartTime.ToString(@"hh\:mm")</td>
+                                        <td>@availability.DurationMinutes دقيقة</td>
+                                        <td>
+                                            @if (availability.IsBooked)
+                                            {
+                                                <span class="badge badge-pill badge-danger alert-danger">محجوز</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-pill badge-success alert-success">متاح</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (!availability.IsBooked)
+                                            {
+                                                <a asp-action="EditAvailability" asp-controller="Advisor" asp-route-id="@availability.AvailabilityId" class="btn btn-sm btn-warning" title="تعديل">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a asp-action="DeleteAvailability" asp-controller="Advisor" asp-route-id="@availability.AvailabilityId" class="btn btn-sm btn-danger" title="حذف">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">لا يوجد إجراء متاح</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center">لا توجد مواعيد متاحة حالياً.</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/ar.json'
+                }
+            });
+        });
+    </script>
+}

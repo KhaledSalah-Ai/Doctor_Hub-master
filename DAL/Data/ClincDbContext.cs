@@ -25,6 +25,10 @@ namespace DAL.Data
         public DbSet<CoursePurchaseRequest> CoursePurchases { get; set; }
         public DbSet<CourseVideo> CourseVideos { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<Advisor> Advisors { get; set; }
+        public DbSet<AdvisorAvailability> advisorAvailabilities { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -160,6 +164,31 @@ namespace DAL.Data
                 }
             );
 
+
+            // Seed Advisors
+            modelBuilder.Entity<Advisor>().HasData(
+                new Advisor
+                {
+                    AdvisorId = 1,
+                    Name = "د. أحمد المصري",
+                    Email = "doctor.cardiology@example.com",
+                    Phone = "01001234567",
+                    MedicalSpecialtyId = 1 
+                },
+                new Advisor
+                {
+                    AdvisorId = 2,
+                    Name = "د. فاطمة الزهراء",
+                    Email = "doctor.dermatology@example.com",
+                    Phone = "01117654321",
+                    MedicalSpecialtyId = 2 
+                });
+
+
+
+
+
+
             // Seed CustomerReviews
             modelBuilder.Entity<CustomerReview>().HasData(
                 new CustomerReview
@@ -196,6 +225,16 @@ namespace DAL.Data
                     IsVisible = true
                 }
             );
+
+
+
+
+
+
+
+
+
+
 
             // Seed Partnerships
             modelBuilder.Entity<Partnership>().HasData(

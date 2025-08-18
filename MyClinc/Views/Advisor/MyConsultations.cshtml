@@ -1,0 +1,33 @@
+﻿@model IEnumerable<DAL.Data.Models.Consultation>
+
+@{
+    ViewData["Title"] = "استشاراتي";
+    Layout = "~/Views/Shared/_AdvisorLayout.cshtml";
+
+}
+
+<h2 class="mb-3">كل الاستشارات الخاصة بي</h2>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>اسم المريض</th>
+            <th>رقم الهاتف</th>
+            <th>تاريخ الحجز</th>
+            <th>الموعد</th>
+            <th>الحالة</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.PatientName</td>
+                <td>@c.FullPhoneNumber</td>
+                <td>@c.AdvisorAvailability.Date.ToString("dd/MM/yyyy")</td>
+                <td>@c.AdvisorAvailability.StartTime</td>
+                <td>@c.Status</td>
+            </tr>
+        }
+    </tbody>
+</table>

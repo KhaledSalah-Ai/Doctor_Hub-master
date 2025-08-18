@@ -107,9 +107,17 @@
                                 <td>
                                     <span class="badge bg-success">@(consultation.MedicalSpecialty?.Name ?? "غير محدد")</span>
                                 </td>
+                                @{
+                                    var startTime = consultation.AdvisorAvailability.StartTime;
+                                    var duration = consultation.AdvisorAvailability.DurationMinutes;
+                                    var endTime = startTime.Add(TimeSpan.FromMinutes(duration));
+                                }
+
                                 <td>
-                                    <span class="fw-bold">@consultation.BookingDate.ToString("dd/MM/yyyy")</span>
-                                    <small class="text-muted d-block">@consultation.BookingDate.ToString("hh:mm tt")</small>
+                                    <span class="fw-bold">@consultation.AdvisorAvailability.Date.ToString("dd/MM/yyyy")</span>
+                                    <small class="text-muted d-block">
+                                        @startTime.ToString(@"hh\:mm") - @endTime.ToString(@"hh\:mm")
+                                    </small>
                                 </td>
                                 <td>
                                     <span class="badge @(consultation.Status == "قيد المراجعة" ? "bg-warning text-dark" : "bg-success")">

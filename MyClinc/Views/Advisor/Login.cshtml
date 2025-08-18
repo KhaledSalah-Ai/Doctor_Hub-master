@@ -1,0 +1,53 @@
+﻿@model MyClinc.ViewModels.AdvisorLoginViewModel
+@{
+    ViewData["Title"] = "تسجيل دخول المستشار";
+}
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg p-4 rounded-4" style="max-width: 400px; width: 100%;">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold text-primary">@ViewData["Title"]</h2>
+            <p class="text-muted">من فضلك أدخل بياناتك لتسجيل الدخول</p>
+        </div>
+
+        <form id="account" method="post" asp-action="Login">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+            <!-- Email -->
+            <div class="form-floating mb-3 position-relative">
+                <input asp-for="Email" class="form-control rounded-3 ps-5"
+                       autocomplete="username" aria-required="true" placeholder="name@example.com"
+                       style="padding-left: 2.5rem;" />
+                <label asp-for="Email" class="form-label"></label>
+                <span asp-validation-for="Email" class="text-danger"></span>
+                
+            </div>
+
+            <!-- Password -->
+            <div class="form-floating mb-4 position-relative">
+                <input asp-for="Password" type="password" class="form-control rounded-3 ps-5"
+                       autocomplete="current-password" aria-required="true" placeholder="password"
+                       style="padding-left: 2.5rem;" />
+                <label asp-for="Password" class="form-label"></label>
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <!-- Submit -->
+            <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary rounded-3 shadow-sm">
+                <i class="bi bi-box-arrow-in-right me-2"></i> تسجيل الدخول
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+}
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>

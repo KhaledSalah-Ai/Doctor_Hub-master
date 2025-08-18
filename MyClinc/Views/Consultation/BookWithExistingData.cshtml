@@ -1,0 +1,244 @@
+﻿@model DAL.Data.Models.Consultation
+@using DAL.Data.Models
+@{
+    ViewData["Title"] = "الحجز باستخدام البيانات السابقة";
+    var existing = ViewBag.ExistingData as DAL.Data.Models.Consultation;
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">الحجز باستخدام البيانات السابقة</h2>
+
+    <div class="alert alert-info" role="alert">
+        سيتم استخدام بياناتك الأساسية المسجّلة مسبقًا. يمكنك متابعة ملء تفاصيل حالتك الطبية الحالية واختيار نوع الاستشارة.
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <strong>بياناتك الأساسية (عرض فقط)</strong>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6"><b>الاسم الكامل:</b> @existing?.PatientName</div>
+                <div class="col-md-6"><b>رقم الهاتف الدولي:</b> @existing?.FullPhoneNumber</div>
+                <div class="col-md-6"><b>تاريخ الميلاد:</b> @existing?.BirthDate.ToString("yyyy-MM-dd")</div>
+                <div class="col-md-6"><b>بلد الولادة:</b> @existing?.BirthCountry</div>
+                <div class="col-md-6"><b>بلد السكن الحالي:</b> @existing?.CurrentCountry</div>
+                <div class="col-md-6"><b>الجنس:</b> @existing?.Gender</div>
+                <div class="col-md-6"><b>الحالة الاجتماعية:</b> @existing?.MaritalStatus</div>
+                <div class="col-md-6"><b>جهة العمل/الدراسة:</b> @existing?.WorkOrStudyPlace</div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="BookWithExistingData" method="post">
+        @Html.AntiForgeryToken()
+
+        <!-- مهم جدًا: إرسال المعرف للحجز السابق -->
+        <input type="hidden" name="ExistingConsultationId" value="@existing?.ConsultationId" />
+
+        <!-- لإرضاء ModelState (الحقول Required) -->
+        <input type="hidden" name="PatientName" value="@existing?.PatientName" />
+        <input type="hidden" name="FullPhoneNumber" value="@existing?.FullPhoneNumber" />
+        <input type="hidden" name="PhoneNumber" value="@existing?.PhoneNumber" />
+        <input type="hidden" name="BirthDate" value="@existing?.BirthDate.ToString("yyyy-MM-dd")" />
+        <input type="hidden" name="BirthCountry" value="@existing?.BirthCountry" />
+        <input type="hidden" name="CurrentCountry" value="@existing?.CurrentCountry" />
+        <!-- الحقول التالية اختيارية لكن نرسلها برضه للحفاظ على القيمة -->
+        <input type="hidden" name="Gender" value="@existing?.Gender" />
+        <input type="hidden" name="MaritalStatus" value="@existing?.MaritalStatus" />
+        <input type="hidden" name="WorkOrStudyPlace" value="@existing?.WorkOrStudyPlace" />
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <strong>تفاصيل الاستشارة</strong>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label asp-for="MedicalSpecialtyId" class="form-label">نوع الاستشارة</label>
+                    <select id="MedicalSpecialtyId" name="MedicalSpecialtyId" asp-items="ViewBag.MedicalSpecialties" class="form-select"></select>
+                    <span asp-validation-for="MedicalSpecialtyId" class="text-danger"></span>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <strong>التاريخ المرضي والحالة الصحية الحالية</strong>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label asp-for="ChronicDiseases" class="form-label"></label>
+                    <textarea asp-for="ChronicDiseases" class="form-control" rows="2" placeholder="مثال: ضغط، سكر، لا يوجد"></textarea>
+                    <span asp-validation-for="ChronicDiseases" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Allergies" class="form-label"></label>
+                    <textarea asp-for="Allergies" class="form-control" rows="2" placeholder="مثال: بنسلين، فول سوداني، لا يوجد"></textarea>
+                    <span asp-validation-for="Allergies" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PastSurgeries" class="form-label"></label>
+                    <textarea asp-for="PastSurgeries" class="form-control" rows="2" placeholder="اذكر العمليات وتواريخها إن أمكن"></textarea>
+                    <span asp-validation-for="PastSurgeries" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CurrentMedications" class="form-label"></label>
+                    <textarea asp-for="CurrentMedications" class="form-control" rows="2" placeholder="الأدوية الحالية والجرعات"></textarea>
+                    <span asp-validation-for="CurrentMedications" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="InfectiousDiseases" class="form-label"></label>
+                    <textarea asp-for="InfectiousDiseases" class="form-control" rows="2" placeholder="مثل: كورونا سابقًا، التهاب كبدي..."></textarea>
+                    <span asp-validation-for="InfectiousDiseases" class="text-danger"></span>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <label class="form-label fw-bold">هل تعاني من مشاكل في الأجهزة التالية؟</label>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input name="HasRespiratoryIssues" class="form-check-input" type="checkbox" value="true" id="HasRespiratoryIssues">
+                            <input name="HasRespiratoryIssues" type="hidden" value="false">
+                            <label for="HasRespiratoryIssues" class="form-check-label">مشاكل في الجهاز التنفسي</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input name="HasDigestiveIssues" class="form-check-input" type="checkbox" value="true" id="HasDigestiveIssues">
+                            <input name="HasDigestiveIssues" type="hidden" value="false">
+                            <label for="HasDigestiveIssues" class="form-check-label">مشاكل في الجهاز الهضمي</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input name="HasNeurologicalIssues" class="form-check-input" type="checkbox" value="true" id="HasNeurologicalIssues">
+                            <input name="HasNeurologicalIssues" type="hidden" value="false">
+                            <label for="HasNeurologicalIssues" class="form-check-label">مشاكل في الجهاز العصبي</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input name="HasUrinaryOrReproductiveIssues" class="form-check-input" type="checkbox" value="true" id="HasUrinaryOrReproductiveIssues">
+                            <input name="HasUrinaryOrReproductiveIssues" type="hidden" value="false">
+                            <label for="HasUrinaryOrReproductiveIssues" class="form-check-label">مشاكل في الجهاز البولي أو التناسلي</label>
+                        </div>
+                    </div>
+                </div>
+
+@*                 <div class="row g-3">
+                    <div class="col-md-6 form-check">
+                        <input class="form-check-input" asp-for="HasRespiratoryIssues" />
+                        <label class="form-check-label" asp-for="HasRespiratoryIssues"></label>
+                    </div>
+                    <div class="col-md-6 form-check">
+                        <input class="form-check-input" asp-for="HasDigestiveIssues" />
+                        <label class="form-check-label" asp-for="HasDigestiveIssues"></label>
+                    </div>
+                    <div class="col-md-6 form-check">
+                        <input class="form-check-input" asp-for="HasNeurologicalIssues" />
+                        <label class="form-check-label" asp-for="HasNeurologicalIssues"></label>
+                    </div>
+                    <div class="col-md-6 form-check">
+                        <input class="form-check-input" asp-for="HasUrinaryOrReproductiveIssues" />
+                        <label class="form-check-label" asp-for="HasUrinaryOrReproductiveIssues"></label>
+                    </div>
+                </div> *@
+
+                <hr />
+
+                <div class="mb-3">
+                    <label asp-for="FamilyDiseases" class="form-label"></label>
+                    <input asp-for="FamilyDiseases" class="form-control" placeholder="مثال: القلب، السكري، لا يوجد" />
+                    <span asp-validation-for="FamilyDiseases" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MentalHealthIssues" class="form-label"></label>
+                    <input asp-for="MentalHealthIssues" class="form-control" placeholder="مثال: قلق، اكتئاب، لا يوجد" />
+                    <span asp-validation-for="MentalHealthIssues" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PsychiatricMedications" class="form-label"></label>
+                    <input asp-for="PsychiatricMedications" class="form-control" placeholder="أسماء الأدوية والجرعات" />
+                    <span asp-validation-for="PsychiatricMedications" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PreviousTestsResults" class="form-label"></label>
+                    <textarea asp-for="PreviousTestsResults" class="form-control" rows="2" placeholder="نتائج تحاليل أو أشعة سابقة"></textarea>
+                    <span asp-validation-for="PreviousTestsResults" class="text-danger"></span>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="LastVaccinationDate" class="form-label"></label>
+                        <input asp-for="LastVaccinationDate" class="form-control" type="date" />
+                        <span asp-validation-for="LastVaccinationDate" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Diagnosis" class="form-label"></label>
+                        <input asp-for="Diagnosis" class="form-control" placeholder="إن وُجد تشخيص سابق" />
+                        <span asp-validation-for="Diagnosis" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label asp-for="RecommendedTreatment" class="form-label"></label>
+                    <input asp-for="RecommendedTreatment" class="form-control" placeholder="خطة علاج مقترحة إن وُجدت" />
+                    <span asp-validation-for="RecommendedTreatment" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-action="BookingQuestion" class="btn btn-outline-secondary">رجوع</a>
+            <button type="submit" class="btn btn-success px-4">احجز ميعاد</button>
+        </div>
+
+        <div class="mt-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $("#MedicalSpecialtyId").change(function () {
+                var specialtyId = $(this).val();
+                if (specialtyId) {
+                    $.getJSON('/YourControllerName/GetAvailabilitiesBySpecialty', { specialtyId: specialtyId }, function (data) {
+                        var availDropDown = $("#AvailabilityId");
+                        availDropDown.empty();
+                        availDropDown.append('<option value="">اختر موعد</option>');
+                        $.each(data, function (i, item) {
+                            availDropDown.append('<option value="' + item.availabilityId + '">' + item.text + '</option>');
+                        });
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+
+
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>

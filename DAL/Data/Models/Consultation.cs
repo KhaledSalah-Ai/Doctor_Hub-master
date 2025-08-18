@@ -45,7 +45,7 @@ namespace DAL.Data.Models
 
         [Display(Name = "الحالة الاجتماعية")]
         public string? MaritalStatus { get; set; }
-        
+
         [Required(ErrorMessage = "يرجى اختيار نوع الاستشارة")]
         [Display(Name = "نوع الاستشارة")]
         public int MedicalSpecialtyId { get; set; }
@@ -55,21 +55,21 @@ namespace DAL.Data.Models
 
         [Display(Name = "رسوم الاستشارة")]
         public decimal ConsultationFee { get; set; }
-        
+
         [Display(Name = "حالة الدفع")]
         public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Pending;
 
         [Display(Name = "تم إرسال الوصل؟")]
         public bool ReceiptSent { get; set; } = false;
-        
+
         public string? ReceiptToken { get; set; }
-        
+
         [Display(Name = "تاريخ الحجز")]
         public DateTime BookingDate { get; set; } = DateTime.Now;
-        
+
         [Display(Name = "حالة الاستشارة")]
         public string Status { get; set; } = "قيد المراجعة"; // قيد المراجعة، مؤكد، مكتمل، ملغي
-        
+
         [Display(Name = "ملاحظات الإدارة")]
         [StringLength(500)]
         public string? AdminNotes { get; set; }
@@ -120,11 +120,17 @@ namespace DAL.Data.Models
         public DateTime? LastVaccinationDate { get; set; } // مثال: تاريخ تطعيم كورونا أو التهاب الكبد
         public string? Diagnosis { get; set; } // التشخيص الطبي إذا كان متاحًا
         public string? RecommendedTreatment { get; set; }
+        [Display(Name = "الموعد المختار")]
+        public int AdvisorAvailabilityId { get; set; }
+
+        [ForeignKey("AdvisorAvailabilityId")]
+        public AdvisorAvailability? AdvisorAvailability { get; set; }
+
 
         // Navigation property for reviews
         public virtual ICollection<CustomerReview> Reviews { get; set; } = new List<CustomerReview>();
     }
-    
+
     public enum PaymentStatus
     {
         Pending,

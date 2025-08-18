@@ -1,0 +1,355 @@
+﻿@{
+    ViewData["Title"] = "التحقق من الحجز السابق";
+}
+
+<link href="~/css/HomeIndex.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
+
+
+<section class="section-padding bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="phone-check-card">
+                    <div class="phone-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    
+                    <h3 class="card-title">أدخل رقم هاتفك لاسترداد بياناتك المحفوظة</h3>
+                    
+                    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+                    {
+                        <div class="alert alert-@(ViewBag.ShowFullFormButton != null ? "warning" : "danger")" role="alert">
+                            <i class="fas fa-@(ViewBag.ShowFullFormButton != null ? "exclamation-triangle" : "times-circle") me-2"></i>
+                            @ViewBag.ErrorMessage
+                        </div>
+                    }
+                    
+                    <form method="post" asp-action="CheckPreviousBooking" id="phoneCheckForm">
+                        <div class="phone-input-container">
+                            <label for="phoneNumber" class="form-label">رقم الهاتف</label>
+                            <input type="tel" name="phoneNumber" id="phoneNumber" class="form-control phone-input" 
+                                   placeholder="أدخل رقم هاتفك" required>
+                            <div id="phoneError" class="text-danger mt-2" style="display: none;"></div>
+                        </div>
+                        
+                        <div class="button-group">
+                            <button type="submit" class="btn-check-phone" id="checkBtn">
+                                <i class="fas fa-search"></i>
+                                البحث عن بياناتي
+                            </button>
+                        </div>
+                    </form>
+                    
+                    @if (ViewBag.ShowFullFormButton != null)
+                    {
+                        <div class="alternative-action">
+                            <p class="text-muted">أو يمكنك تعبئة النموذج كاملاً:</p>
+                            <a href="@Url.Action("GoToFullForm")" class="btn-full-form">
+                                <i class="fas fa-edit"></i>
+                                تعبئة البيانات كاملة
+                            </a>
+                        </div>
+                    }
+                    
+                    <div class="back-option">
+                        <a href="@Url.Action("BookingQuestion")" class="btn-back">
+                            <i class="fas fa-arrow-right"></i>
+                            العودة للسؤال السابق
+                        </a>
+                    </div>
+                    
+                    <div class="help-info">
+                        <div class="info-item">
+                            <i class="fas fa-shield-alt text-success"></i>
+                            <span>بياناتك محفوظة بأمان معنا</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-clock text-info"></i>
+                            <span>توفير الوقت في تعبئة البيانات</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .min-vh-30 {
+        min-height: 30vh;
+    }
+    
+    .phone-check-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        animation: slideInUp 0.8s ease-out;
+    }
+    
+    .phone-check-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #17a2b8, #2c5aa0);
+    }
+    
+    .phone-icon {
+        font-size: 3rem;
+        color: #17a2b8;
+        margin-bottom: 1.5rem;
+        animation: bounce 2s infinite;
+    }
+    
+    @@keyframes bounce {
+        0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+        40% { transform: translateY(-10px); }
+        60% { transform: translateY(-5px); }
+    }
+    
+    .card-title {
+        color: #333;
+        margin-bottom: 2rem;
+        font-weight: 700;
+        font-size: 1.4rem;
+    }
+    
+    .phone-input-container {
+        margin-bottom: 2rem;
+        text-align: start;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .phone-input {
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+    
+    .phone-input:focus {
+        border-color: #17a2b8;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+        outline: none;
+    }
+    
+    .iti {
+        width: 100% !important;
+    }
+    
+    .iti__selected-flag {
+        padding: 1rem 0.5rem;
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        border-right: none;
+        border-radius: 10px 0 0 10px;
+    }
+    
+    .iti input[type=tel] {
+        border-radius: 0 10px 10px 0 !important;
+        border-left: none !important;
+        border: 2px solid #e9ecef !important;
+        padding: 1rem !important;
+        font-size: 1.1rem !important;
+    }
+    
+    .iti input[type=tel]:focus {
+        border-color: #17a2b8 !important;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25) !important;
+    }
+    
+    .button-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-check-phone {
+        background: linear-gradient(135deg, #17a2b8, #2c5aa0);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn-check-phone:hover {
+        background: linear-gradient(135deg, #2c5aa0, #17a2b8);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+    }
+    
+    .alternative-action {
+        margin: 1.5rem 0;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .btn-full-form {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: white;
+        text-decoration: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-full-form:hover {
+        background: linear-gradient(135deg, #fd7e14, #ffc107);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .back-option {
+        margin: 1rem 0;
+    }
+    
+    .btn-back {
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.3s ease;
+    }
+    
+    .btn-back:hover {
+        color: #2c5aa0;
+        text-decoration: none;
+    }
+    
+    .help-info {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+        justify-content: center;
+    }
+    
+    @@media (max-width: 768px) {
+        .phone-check-card {
+            padding: 2rem 1.5rem;
+            margin: 1rem;
+        }
+        
+        .phone-icon {
+            font-size: 2.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+        }
+    }
+    
+    @@keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+<script>
+    let phoneInput;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize international telephone input
+        const phoneInputElement = document.querySelector("#phoneNumber");
+        phoneInput = window.intlTelInput(phoneInputElement, {
+            initialCountry: "iq",
+            preferredCountries: ["iq", "sa", "ae", "eg", "jo", "lb", "sy"],
+            separateDialCode: true,
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js",
+            formatOnDisplay: true,
+            nationalMode: false,
+            autoPlaceholder: "aggressive"
+        });
+
+        // Phone validation
+        phoneInputElement.addEventListener('blur', function() {
+            validatePhoneNumber();
+        });
+
+        phoneInputElement.addEventListener('input', function() {
+            document.getElementById('phoneError').style.display = 'none';
+            phoneInputElement.classList.remove('is-invalid');
+        });
+
+        // Form submission
+        document.getElementById('phoneCheckForm').addEventListener('submit', function(e) {
+            if (!validatePhoneNumber()) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Set the full phone number
+            const fullNumber = phoneInput.getNumber();
+            phoneInputElement.value = fullNumber;
+        });
+    });
+
+    function validatePhoneNumber() {
+        const phoneInputElement = document.querySelector("#phoneNumber");
+        const phoneError = document.getElementById('phoneError');
+
+        if (!phoneInputElement.value.trim()) {
+            phoneInputElement.classList.add('is-invalid');
+            phoneError.textContent = 'يرجى إدخال رقم الهاتف';
+            phoneError.style.display = 'block';
+            return false;
+        }
+
+        if (phoneInput.isValidNumber()) {
+            phoneInputElement.classList.remove('is-invalid');
+            phoneInputElement.classList.add('is-valid');
+            phoneError.style.display = 'none';
+            return true;
+        } else {
+            phoneInputElement.classList.remove('is-valid');
+            phoneInputElement.classList.add('is-invalid');
+
+            const errorCode = phoneInput.getValidationError();
+            let error
