@@ -17,7 +17,9 @@ namespace DAL.Data.Models
         [Required]
         [Display(Name = "البريد الإلكتروني")]
         public string Email { get; set; }
-
+        [Required]
+        [Display(Name = "كلمة المرور")]
+        public string? Password { get; set; }
         public string? Phone { get; set; }
 
         // الربط مع نوع الاستشارة (One-to-One)

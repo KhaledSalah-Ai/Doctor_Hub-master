@@ -145,9 +145,18 @@
                                     <td class="align-middle">
                                         <small class="text-muted">@consultation.BookingDate.ToString("dd/MM/yyyy")</small>
                                     </td>
-                                    <td class="align-middle">
-                                        <span class="fw-bold text-success">$@consultation.ConsultationFee</span>
-                                    </td>
+                                    @if (consultation.IsIraqi)
+                                    {
+                                        <td class="align-middle">
+                                            <span class="fw-bold text-success">دينار @consultation.ConsultationFee</span>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="align-middle">
+                                            <span class="fw-bold text-success">دولار @consultation.ConsultationFee</span>
+                                        </td>
+                                    }
                                     <td class="align-middle">
                                         <div class="dropdown">
                                             @* <button class="btn btn-sm dropdown-toggle payment-status-btn *@

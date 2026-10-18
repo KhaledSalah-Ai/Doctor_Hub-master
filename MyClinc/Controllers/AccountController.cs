@@ -54,6 +54,12 @@ namespace MyClinc.Controllers
         }
 
         [HttpGet]
+        public IActionResult ChooseLogin()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult Login()
         {
             return View();

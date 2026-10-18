@@ -713,8 +713,8 @@ namespace MyClinc.Controllers
                 if (consultation == null)
                     return Json(new { success = false });
 
-                consultation.Diagnosis = model.Diagnosis;
-                consultation.RecommendedTreatment = model.RecommendedTreatment;
+                //consultation.Diagnosis = model.Diagnosis;
+                //consultation.RecommendedTreatment = model.RecommendedTreatment;
 
                 _consultationRepo.Update(consultation);
                 await _consultationRepo.SaveAsync();
@@ -909,7 +909,7 @@ namespace MyClinc.Controllers
         [HttpPost]
         public async Task<IActionResult> AddCourse(CourseWithImageFileViewModel model)
         {
-            if (model.Title == null || model.ImageFile == null)
+            if (!ModelState.IsValid)
             {
                 return View(model);
             }
@@ -1218,6 +1218,164 @@ namespace MyClinc.Controllers
             }
             return View(model);
         }
+
+        // Advisor
+        public IActionResult Advisors()
+        {
+            List<Advisor> advisors = _dbContext.Advisors.Include(av=>av.MedicalSpecialty).ToList();
+            return View(advisors);
+        }
+        [HttpGet]
+        public IActionResult AddAdvisor()
+        {
+            var availableSpecialties = _dbContext.MedicalSpecialties
+        .Where(ms => ms.Advisor == null) 
+        .ToList();
+
+            var model = new AdvisorViewModel
+            {
+                AvailableSpecialties = availableSpecialties
+            };
+
+            return View(model);
+        }
+        [HttpPost]
+        public IActionResult AddAdvisor(AdvisorViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool exists = _dbContext.Advisors.Any(a => a.MedicalSpecialtyId == model.MedicalSpecialtyId);
+                if (exists)
+                {
+                    ModelState.AddModelError("MedicalSpecialtyId", "هذا التخصص مستخدم بالفعل من قبل دكتور آخر.");
+
+                    model.AvailableSpecialties = _dbContext.MedicalSpecialties
+                        .Where(ms => ms.Advisor == null)
+                        .ToList();
+
+                    return View(model);
+                }
+
+                Advisor newAdv = new Advisor()
+                {
+                    Email = model.Email,
+                    Password = model.Password,
+                    Phone = model.Phone,
+                    Name = model.Name,
+                    MedicalSpecialtyId = model.MedicalSpecialtyId
+                };
+
+                _dbContext.Advisors.Add(newAdv);
+                _dbContext.SaveChanges();
+                return RedirectToAction("Advisors");
+            }
+
+            model.AvailableSpecialties = _dbContext.MedicalSpecialties
+                .Where(ms => ms.Advisor == null)
+                .ToList();
+
+            return View(model);
+        }
+
+
+        [HttpGet]
+        public IActionResult EditAdvisor(int id)
+        {
+            var advisor = _dbContext.Advisors.FirstOrDefault(a => a.AdvisorId == id);
+            if (advisor == null)
+                return NotFound();
+
+            var availableSpecialties = _dbContext.MedicalSpecialties
+                .Where(ms => ms.Advisor == null || ms.Id == advisor.MedicalSpecialtyId)
+                .ToList();
+
+            var model = new AdvisorViewModel
+            {
+                AdvisorId = advisor.AdvisorId,
+                Name = advisor.Name,
+                Email = advisor.Email,
+                Phone = advisor.Phone,
+                Password = advisor.Password,
+                MedicalSpecialtyId = advisor.MedicalSpecialtyId,
+                AvailableSpecialties = availableSpecialties
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult EditAdvisor(AdvisorViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var advisor = _dbContext.Advisors.FirstOrDefault(a => a.AdvisorId == model.AdvisorId);
+                if (advisor == null)
+                    return NotFound();
+
+                bool exists = _dbContext.Advisors.Any(a => a.MedicalSpecialtyId == model.MedicalSpecialtyId && a.AdvisorId != model.AdvisorId);
+                if (exists)
+                {
+                    ModelState.AddModelError("MedicalSpecialtyId", "هذا التخصص مستخدم بالفعل من قبل دكتور آخر.");
+
+                    model.AvailableSpecialties = _dbContext.MedicalSpecialties
+                        .Where(ms => ms.Advisor == null || ms.Id == advisor.MedicalSpecialtyId)
+                        .ToList();
+
+                    return View(model);
+                }
+
+                advisor.Name = model.Name;
+                advisor.Email = model.Email;
+                advisor.Phone = model.Phone;
+                advisor.Password = model.Password;
+                advisor.MedicalSpecialtyId = model.MedicalSpecialtyId;
+
+                _dbContext.SaveChanges();
+                return RedirectToAction("Advisors");
+            }
+
+            model.AvailableSpecialties = _dbContext.MedicalSpecialties
+                .Where(ms => ms.Advisor == null)
+                .ToList();
+
+            return View(model);
+        }
+
+
+        // عرض صفحة تأكيد الحذف
+        [HttpGet]
+        public IActionResult DeleteAdvisor(int id)
+        {
+            var advisor = _dbContext.Advisors
+                .Where(a => a.AdvisorId == id)
+                .Select(a => new AdvisorViewModel
+                {
+                    AdvisorId = a.AdvisorId,
+                    Name = a.Name,
+                    Email = a.Email,
+                    Phone = a.Phone,
+                    MedicalSpecialtyId = a.MedicalSpecialtyId
+                }).FirstOrDefault();
+
+            if (advisor == null)
+                return NotFound();
+
+            return View(advisor);
+        }
+
+        [HttpPost, ActionName("DeleteAdvisor")]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var advisor = _dbContext.Advisors.FirstOrDefault(a => a.AdvisorId == id);
+            if (advisor == null)
+                return NotFound();
+
+            _dbContext.Advisors.Remove(advisor);
+            _dbContext.SaveChanges();
+
+            return RedirectToAction("Advisors");
+        }
+
     }
 }
 

@@ -5,6 +5,12 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
+	<PropertyGroup>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<CodePage>65001</CodePage>
+	</PropertyGroup>
+
 
 	<ItemGroup>
 		<PackageReference Include="DocumentFormat.OpenXml" Version="3.3.0" />

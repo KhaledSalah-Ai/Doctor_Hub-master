@@ -1,0 +1,74 @@
+﻿@model MyClinc.ViewModels.AdvisorViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<div class="container mt-4">
+    <h2 class="fw-bold mb-3">Edit Advisor</h2>
+
+    <form asp-action="EditAdvisor" method="post">
+        <input type="hidden" asp-for="AdvisorId" />
+
+        <div class="mb-3">
+            <label asp-for="Name" class="form-label"></label>
+            <input asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Password" class="form-label fw-bold"></label>
+            <div class="input-group">
+                <input asp-for="Password" type="password" class="form-control" placeholder="ادخل كلمة المرور" id="passwordInput" />
+                <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="MedicalSpecialtyId" class="form-label"></label>
+            <select asp-for="MedicalSpecialtyId" class="form-control"
+                    asp-items="@(new SelectList(Model.AvailableSpecialties, "Id", "Name", Model.MedicalSpecialtyId))">
+                <option value="">-- اختر التخصص --</option>
+            </select>
+            <span asp-validation-for="MedicalSpecialtyId" class="text-danger"></span>
+        </div>
+
+       
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Update
+            </button>
+            <a asp-action="Advisors" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const passwordInput = document.getElementById("passwordInput");
+        const togglePassword = document.getElementById("togglePassword");
+
+        togglePassword.addEventListener("click", function () {
+            const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+            passwordInput.setAttribute("type", type);
+            this.innerHTML = type === "password"
+                ? '<i class="bi bi-eye"></i>'
+                : '<i class="bi bi-eye-slash"></i>';
+        });
+    </script>
+}

@@ -20,7 +20,7 @@ namespace MyClinc.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Add([FromBody] MedicalSpecialty specialty)
+        public async Task<IActionResult> Add(MedicalSpecialty specialty)
         {
             try
             {
@@ -30,16 +30,23 @@ namespace MyClinc.Controllers
                     await _specialtyRepo.SaveAsync();
                     return Json(new { success = true, message = "تم إضافة التخصص بنجاح" });
                 }
-                return Json(new { success = false, message = "البيانات غير صحيحة" });
+
+                // جلب الأخطاء التفصيلية
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return Json(new { success = false, message = "البيانات غير صحيحة", errors });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(new { success = false, message = "حدث خطأ أثناء إضافة التخصص" });
             }
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit([FromBody] MedicalSpecialty specialty)
+        public async Task<IActionResult> Edit(MedicalSpecialty specialty)
         {
             try
             {
@@ -50,7 +57,8 @@ namespace MyClinc.Controllers
                     {
                         existingSpecialty.Name = specialty.Name;
                         existingSpecialty.Description = specialty.Description;
-                        existingSpecialty.Price = specialty.Price;
+                        existingSpecialty.PriceIQD = specialty.PriceIQD;
+                        existingSpecialty.PriceUSD = specialty.PriceUSD;
                         existingSpecialty.IconClass = specialty.IconClass;
                         existingSpecialty.IsVisibleToPatient = specialty.IsVisibleToPatient;
 
@@ -60,9 +68,15 @@ namespace MyClinc.Controllers
                     }
                     return Json(new { success = false, message = "التخصص غير موجود" });
                 }
-                return Json(new { success = false, message = "البيانات غير صحيحة" });
+
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return Json(new { success = false, message = "البيانات غير صحيحة", errors });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(new { success = false, message = "حدث خطأ أثناء تحديث التخصص" });
             }
@@ -82,7 +96,7 @@ namespace MyClinc.Controllers
                 }
                 return Json(new { success = false, message = "التخصص غير موجود" });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(new { success = false, message = "حدث خطأ أثناء حذف التخصص" });
             }
@@ -103,7 +117,7 @@ namespace MyClinc.Controllers
                 }
                 return Json(new { success = false, message = "التخصص غير موجود" });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(new { success = false, message = "حدث خطأ أثناء تحديث حالة الرؤية" });
             }
@@ -121,7 +135,7 @@ namespace MyClinc.Controllers
                 }
                 return Json(new { success = false, message = "التخصص غير موجود" });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Json(new { success = false, message = "حدث خطأ أثناء جلب بيانات التخصص" });
             }

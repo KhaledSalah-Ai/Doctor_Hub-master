@@ -4,218 +4,274 @@
     ViewData["Title"] = "الحجز باستخدام البيانات السابقة";
     var existing = ViewBag.ExistingData as DAL.Data.Models.Consultation;
 }
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-<div class="container mt-5">
-    <h2 class="mb-4 text-center">الحجز باستخدام البيانات السابقة</h2>
-
-    <div class="alert alert-info" role="alert">
-        سيتم استخدام بياناتك الأساسية المسجّلة مسبقًا. يمكنك متابعة ملء تفاصيل حالتك الطبية الحالية واختيار نوع الاستشارة.
-    </div>
-
-    <div class="card shadow-sm mb-4">
-        <div class="card-header">
-            <strong>بياناتك الأساسية (عرض فقط)</strong>
-        </div>
-        <div class="card-body">
-            <div class="row g-3">
-                <div class="col-md-6"><b>الاسم الكامل:</b> @existing?.PatientName</div>
-                <div class="col-md-6"><b>رقم الهاتف الدولي:</b> @existing?.FullPhoneNumber</div>
-                <div class="col-md-6"><b>تاريخ الميلاد:</b> @existing?.BirthDate.ToString("yyyy-MM-dd")</div>
-                <div class="col-md-6"><b>بلد الولادة:</b> @existing?.BirthCountry</div>
-                <div class="col-md-6"><b>بلد السكن الحالي:</b> @existing?.CurrentCountry</div>
-                <div class="col-md-6"><b>الجنس:</b> @existing?.Gender</div>
-                <div class="col-md-6"><b>الحالة الاجتماعية:</b> @existing?.MaritalStatus</div>
-                <div class="col-md-6"><b>جهة العمل/الدراسة:</b> @existing?.WorkOrStudyPlace</div>
+<div class="booking-container">
+    <!-- Header Section -->
+    <div class="booking-header">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <div class="header-icon">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <h1 class="header-title">الحجز باستخدام البيانات السابقة</h1>
+                    <p class="header-subtitle">سيتم استخدام بياناتك الأساسية المسجّلة مسبقًا. برجاء إدخال تفاصيل الحالة الحالية</p>
+                </div>
             </div>
         </div>
     </div>
 
-    <form asp-action="BookWithExistingData" method="post">
-        @Html.AntiForgeryToken()
-
-        <!-- مهم جدًا: إرسال المعرف للحجز السابق -->
-        <input type="hidden" name="ExistingConsultationId" value="@existing?.ConsultationId" />
-
-        <!-- لإرضاء ModelState (الحقول Required) -->
-        <input type="hidden" name="PatientName" value="@existing?.PatientName" />
-        <input type="hidden" name="FullPhoneNumber" value="@existing?.FullPhoneNumber" />
-        <input type="hidden" name="PhoneNumber" value="@existing?.PhoneNumber" />
-        <input type="hidden" name="BirthDate" value="@existing?.BirthDate.ToString("yyyy-MM-dd")" />
-        <input type="hidden" name="BirthCountry" value="@existing?.BirthCountry" />
-        <input type="hidden" name="CurrentCountry" value="@existing?.CurrentCountry" />
-        <!-- الحقول التالية اختيارية لكن نرسلها برضه للحفاظ على القيمة -->
-        <input type="hidden" name="Gender" value="@existing?.Gender" />
-        <input type="hidden" name="MaritalStatus" value="@existing?.MaritalStatus" />
-        <input type="hidden" name="WorkOrStudyPlace" value="@existing?.WorkOrStudyPlace" />
-
-        <div class="card shadow-sm mb-4">
-            <div class="card-header">
-                <strong>تفاصيل الاستشارة</strong>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label asp-for="MedicalSpecialtyId" class="form-label">نوع الاستشارة</label>
-                    <select id="MedicalSpecialtyId" name="MedicalSpecialtyId" asp-items="ViewBag.MedicalSpecialties" class="form-select"></select>
-                    <span asp-validation-for="MedicalSpecialtyId" class="text-danger"></span>
-                </div>
-
-
-            </div>
-        </div>
-
-        <div class="card shadow-sm mb-4">
-            <div class="card-header">
-                <strong>التاريخ المرضي والحالة الصحية الحالية</strong>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label asp-for="ChronicDiseases" class="form-label"></label>
-                    <textarea asp-for="ChronicDiseases" class="form-control" rows="2" placeholder="مثال: ضغط، سكر، لا يوجد"></textarea>
-                    <span asp-validation-for="ChronicDiseases" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Allergies" class="form-label"></label>
-                    <textarea asp-for="Allergies" class="form-control" rows="2" placeholder="مثال: بنسلين، فول سوداني، لا يوجد"></textarea>
-                    <span asp-validation-for="Allergies" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="PastSurgeries" class="form-label"></label>
-                    <textarea asp-for="PastSurgeries" class="form-control" rows="2" placeholder="اذكر العمليات وتواريخها إن أمكن"></textarea>
-                    <span asp-validation-for="PastSurgeries" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="CurrentMedications" class="form-label"></label>
-                    <textarea asp-for="CurrentMedications" class="form-control" rows="2" placeholder="الأدوية الحالية والجرعات"></textarea>
-                    <span asp-validation-for="CurrentMedications" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="InfectiousDiseases" class="form-label"></label>
-                    <textarea asp-for="InfectiousDiseases" class="form-control" rows="2" placeholder="مثل: كورونا سابقًا، التهاب كبدي..."></textarea>
-                    <span asp-validation-for="InfectiousDiseases" class="text-danger"></span>
-                </div>
-
-                <div class="row g-3 mb-4">
-                    <div class="col-12">
-                        <label class="form-label fw-bold">هل تعاني من مشاكل في الأجهزة التالية؟</label>
+    <div class="container">
+        <!-- Progress Bar -->
+        <div class="progress-section mb-5">
+            <div class="progress-bar-wrapper">
+                <div class="progress-step active">
+                    <div class="step-circle">
+                        <i class="bi bi-person-check"></i>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-check">
-                            <input name="HasRespiratoryIssues" class="form-check-input" type="checkbox" value="true" id="HasRespiratoryIssues">
-                            <input name="HasRespiratoryIssues" type="hidden" value="false">
-                            <label for="HasRespiratoryIssues" class="form-check-label">مشاكل في الجهاز التنفسي</label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-check">
-                            <input name="HasDigestiveIssues" class="form-check-input" type="checkbox" value="true" id="HasDigestiveIssues">
-                            <input name="HasDigestiveIssues" type="hidden" value="false">
-                            <label for="HasDigestiveIssues" class="form-check-label">مشاكل في الجهاز الهضمي</label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-check">
-                            <input name="HasNeurologicalIssues" class="form-check-input" type="checkbox" value="true" id="HasNeurologicalIssues">
-                            <input name="HasNeurologicalIssues" type="hidden" value="false">
-                            <label for="HasNeurologicalIssues" class="form-check-label">مشاكل في الجهاز العصبي</label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-check">
-                            <input name="HasUrinaryOrReproductiveIssues" class="form-check-input" type="checkbox" value="true" id="HasUrinaryOrReproductiveIssues">
-                            <input name="HasUrinaryOrReproductiveIssues" type="hidden" value="false">
-                            <label for="HasUrinaryOrReproductiveIssues" class="form-check-label">مشاكل في الجهاز البولي أو التناسلي</label>
-                        </div>
-                    </div>
+                    <span class="step-label">التحقق من البيانات</span>
                 </div>
-
-@*                 <div class="row g-3">
-                    <div class="col-md-6 form-check">
-                        <input class="form-check-input" asp-for="HasRespiratoryIssues" />
-                        <label class="form-check-label" asp-for="HasRespiratoryIssues"></label>
+                <div class="progress-line active"></div>
+                <div class="progress-step active">
+                    <div class="step-circle">
+                        <i class="bi bi-journal-medical"></i>
                     </div>
-                    <div class="col-md-6 form-check">
-                        <input class="form-check-input" asp-for="HasDigestiveIssues" />
-                        <label class="form-check-label" asp-for="HasDigestiveIssues"></label>
-                    </div>
-                    <div class="col-md-6 form-check">
-                        <input class="form-check-input" asp-for="HasNeurologicalIssues" />
-                        <label class="form-check-label" asp-for="HasNeurologicalIssues"></label>
-                    </div>
-                    <div class="col-md-6 form-check">
-                        <input class="form-check-input" asp-for="HasUrinaryOrReproductiveIssues" />
-                        <label class="form-check-label" asp-for="HasUrinaryOrReproductiveIssues"></label>
-                    </div>
-                </div> *@
-
-                <hr />
-
-                <div class="mb-3">
-                    <label asp-for="FamilyDiseases" class="form-label"></label>
-                    <input asp-for="FamilyDiseases" class="form-control" placeholder="مثال: القلب، السكري، لا يوجد" />
-                    <span asp-validation-for="FamilyDiseases" class="text-danger"></span>
+                    <span class="step-label">تفاصيل الاستشارة</span>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="MentalHealthIssues" class="form-label"></label>
-                    <input asp-for="MentalHealthIssues" class="form-control" placeholder="مثال: قلق، اكتئاب، لا يوجد" />
-                    <span asp-validation-for="MentalHealthIssues" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="PsychiatricMedications" class="form-label"></label>
-                    <input asp-for="PsychiatricMedications" class="form-control" placeholder="أسماء الأدوية والجرعات" />
-                    <span asp-validation-for="PsychiatricMedications" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="PreviousTestsResults" class="form-label"></label>
-                    <textarea asp-for="PreviousTestsResults" class="form-control" rows="2" placeholder="نتائج تحاليل أو أشعة سابقة"></textarea>
-                    <span asp-validation-for="PreviousTestsResults" class="text-danger"></span>
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label asp-for="LastVaccinationDate" class="form-label"></label>
-                        <input asp-for="LastVaccinationDate" class="form-control" type="date" />
-                        <span asp-validation-for="LastVaccinationDate" class="text-danger"></span>
+                <div class="progress-line"></div>
+                <div class="progress-step">
+                    <div class="step-circle">
+                        <i class="bi bi-check2-circle"></i>
                     </div>
-                    <div class="col-md-6">
-                        <label asp-for="Diagnosis" class="form-label"></label>
-                        <input asp-for="Diagnosis" class="form-control" placeholder="إن وُجد تشخيص سابق" />
-                        <span asp-validation-for="Diagnosis" class="text-danger"></span>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <label asp-for="RecommendedTreatment" class="form-label"></label>
-                    <input asp-for="RecommendedTreatment" class="form-control" placeholder="خطة علاج مقترحة إن وُجدت" />
-                    <span asp-validation-for="RecommendedTreatment" class="text-danger"></span>
+                    <span class="step-label">تأكيد الحجز</span>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex justify-content-end gap-2">
-            <a asp-action="BookingQuestion" class="btn btn-outline-secondary">رجوع</a>
-            <button type="submit" class="btn btn-success px-4">احجز ميعاد</button>
-        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- بيانات أساسية -->
+                <div class="info-card mb-4">
+                    <div class="card-header">
+                        <div class="header-content">
+                            <div class="icon-wrapper">
+                                <i class="bi bi-person-lines-fill"></i>
+                            </div>
+                            <div class="header-text">
+                                <h5 class="card-title">بياناتك الأساسية</h5>
+                                <p class="card-subtitle">البيانات المحفوظة في النظام</p>
+                            </div>
+                        </div>
+                        <div class="status-badge">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>مؤكدة</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="patient-info-grid">
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <div class="info-content">
+                                    <label>الاسم الكامل</label>
+                                    <span>@existing?.PatientName</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-telephone"></i>
+                                </div>
+                                <div class="info-content">
+                                    <label>رقم الهاتف</label>
+                                    <span>@existing?.FullPhoneNumber</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-calendar-event"></i>
+                                </div>
+                                <div class="info-content">
+                                    <label>تاريخ الميلاد</label>
+                                    <span>@existing?.BirthDate.ToString("yyyy-MM-dd")</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-flag"></i>
+                                </div>
+                                <div class="info-content">
+                                    <label>بلد الميلاد</label>
+                                    <span>@existing?.BirthCountry</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-geo-alt"></i>
+                                </div>
+                                <div class="info-content">
+                                    <label>بلد الإقامة</label>
+                                    <span>@existing?.CurrentCountry</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-gender-ambiguous"></i>
+                                </div>
+                                <div class="info-content">
+                                    <label>الجنس</label>
+                                    <span>@existing?.Gender</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-heart"></i>
+                                </div>
+                                <div class="info-content">
+                                    <label>الحالة الاجتماعية</label>
+                                    <span>@existing?.MaritalStatus</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <i class="bi bi-building"></i>
+                                </div>
+                                <div class="info-content">
+                                    <label>جهة العمل/الدراسة</label>
+                                    <span>@existing?.WorkOrStudyPlace</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="mt-3">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <!-- فورم الحجز -->
+                <form asp-action="BookWithExistingData" method="post" class="booking-form needs-validation" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="ExistingConsultationId" value="@existing?.ConsultationId" />
+                    <input type="hidden" name="PatientName" value="@existing?.PatientName" />
+                    <input type="hidden" name="FullPhoneNumber" value="@existing?.FullPhoneNumber" />
+                    <input type="hidden" name="PhoneNumber" value="@existing?.PhoneNumber" />
+                    <input type="hidden" name="BirthDate" value="@existing?.BirthDate.ToString("yyyy-MM-dd")" />
+                    <input type="hidden" name="BirthCountry" value="@existing?.BirthCountry" />
+                    <input type="hidden" name="CurrentCountry" value="@existing?.CurrentCountry" />
+                    <input type="hidden" name="Gender" value="@existing?.Gender" />
+                    <input type="hidden" name="MaritalStatus" value="@existing?.MaritalStatus" />
+                    <input type="hidden" name="WorkOrStudyPlace" value="@existing?.WorkOrStudyPlace" />
+                    <input type="hidden" name="IsIraqi" value="@(existing?.IsIraqi.ToString().ToLower())" />
+
+
+
+                    <div class="form-card mb-4">
+                        <div class="card-header">
+                            <div class="header-content">
+                                <div class="icon-wrapper">
+                                    <i class="bi bi-journal-medical"></i>
+                                </div>
+                                <div class="header-text">
+                                    <h5 class="card-title">تفاصيل الاستشارة</h5>
+                                    <p class="card-subtitle">اختر نوع الاستشارة المطلوبة</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label asp-for="MedicalSpecialtyId" class="form-label">
+                                    <i class="bi bi-stethoscope me-2"></i>
+                                    نوع الاستشارة
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="select-wrapper">
+                                    <select id="MedicalSpecialtyId" name="MedicalSpecialtyId" asp-items="ViewBag.MedicalSpecialties" class="form-select">
+                                        <option value="">-- اختر نوع الاستشارة --</option>
+                                    </select>
+                                    <i class="bi bi-chevron-down select-icon"></i>
+                                </div>
+                                <span asp-validation-for="MedicalSpecialtyId" class="validation-message"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-card mb-4">
+                        <div class="card-header">
+                            <div class="header-content">
+                                <div class="icon-wrapper">
+                                    <i class="bi bi-clipboard2-pulse"></i>
+                                </div>
+                                <div class="header-text">
+                                    <h5 class="card-title">الأعراض الطبية الحالية</h5>
+                                    <p class="card-subtitle">وصف مفصل للحالة والأعراض</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label asp-for="MedicalSymptoms" class="form-label">
+                                    <i class="bi bi-chat-square-text me-2"></i>
+                                    وصف الأعراض
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="textarea-wrapper">
+                                    <textarea asp-for="MedicalSymptoms" class="form-control" rows="5" placeholder="اكتب تفاصيل الأعراض والحالة الصحية الحالية هنا..."></textarea>
+                                    <div class="char-counter">
+                                        <span class="current-count">0</span>
+                                        <span class="separator">/</span>
+                                        <span class="max-count">500</span>
+                                    </div>
+                                </div>
+                                <span asp-validation-for="MedicalSymptoms" class="validation-message"></span>
+                                <div class="form-hint">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    يرجى وصف الأعراض بشكل مفصل لمساعدة الطبيب في التشخيص
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a asp-action="BookingQuestion" class="btn btn-secondary">
+                            <i class="bi bi-arrow-right me-2"></i>
+                            رجوع
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check2-circle me-2"></i>
+                           اختر الموعد
+                        </button>
+                    </div>
+
+                    <div class="validation-summary mt-4">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                    </div>
+                </form>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
     <script>
         $(document).ready(function () {
+            // Character counter for textarea
+            const textarea = $('#MedicalSymptoms');
+            const counter = $('.current-count');
+            const maxLength = 500;
+
+            textarea.on('input', function() {
+                const currentLength = $(this).val().length;
+                counter.text(currentLength);
+                
+                if (currentLength > maxLength * 0.8) {
+                    counter.addClass('warning');
+                } else {
+                    counter.removeClass('warning');
+                }
+            });
+
             $("#MedicalSpecialtyId").change(function () {
                 var specialtyId = $(this).val();
                 if (specialtyId) {
@@ -229,16 +285,554 @@
                     });
                 }
             });
+
+            $('.needs-validation').on('submit', function(e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                $(this).addClass('was-validated');
+            });
+
+            // Animate cards on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.info-card, .form-card').forEach(card => {
+                observer.observe(card);
+            });
         });
     </script>
 }
 
-
-
 <style>
-    .card {
-        display: block !important;
-        opacity: 1 !important;
-        visibility: visible !important;
+    :root {
+        --primary-color: #0d6efd;
+        --secondary-color: #6c757d;
+        --success-color: #198754;
+        --danger-color: #dc3545;
+        --warning-color: #fd7e14;
+        --info-color: #0dcaf0;
+        --light-color: #f8f9fa;
+        --dark-color: #212529;
+        --border-radius: 16px;
+        --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+    }
+
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+
+    .booking-container {
+        min-height: 100vh;
+        padding-bottom: 50px;
+    }
+
+    .booking-header {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 60px 0 40px;
+        margin-bottom: 40px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .header-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(45deg, var(--primary-color), #0056b3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3);
+    }
+
+    .header-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .header-title {
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
+
+    .progress-section {
+        display: flex;
+        justify-content: center;
+    }
+
+    .progress-bar-wrapper {
+        display: flex;
+        align-items: center;
+        background: white;
+        padding: 20px 30px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        max-width: 600px;
+        width: 100%;
+    }
+
+    .progress-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        text-align: center;
+    }
+
+    .step-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 10px;
+        transition: var(--transition);
+        border: 3px solid #e9ecef;
+    }
+
+    .progress-step.active .step-circle {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    .step-label {
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+        font-weight: 500;
+    }
+
+    .progress-step.active .step-label {
+        color: var(--primary-color);
+        font-weight: 600;
+    }
+
+    .progress-line {
+        height: 2px;
+        background: #e9ecef;
+        flex: 0.5;
+        margin: 0 15px;
+        margin-bottom: 25px;
+        transition: var(--transition);
+    }
+
+    .progress-line.active {
+        background: var(--primary-color);
+    }
+
+    /* Card Styles */
+    .info-card, .form-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        overflow: hidden;
+        transition: var(--transition);
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    .info-card.animate-in, .form-card.animate-in {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .info-card:hover, .form-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-bottom: 1px solid #dee2e6;
+        padding: 25px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .icon-wrapper {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(45deg, var(--primary-color), #0056b3);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .header-text {
+        flex: 1;
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--dark-color);
+        margin: 0 0 5px 0;
+    }
+
+    .card-subtitle {
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+        margin: 0;
+    }
+
+    .status-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #d1edff;
+        color: var(--primary-color);
+        padding: 8px 15px;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .card-body {
+        padding: 30px;
+    }
+
+    .patient-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border-right: 4px solid var(--primary-color);
+        transition: var(--transition);
+    }
+
+    .info-item:hover {
+        background: #e3f2fd;
+        transform: translateX(-5px);
+    }
+
+    .info-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+    .info-content label {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+        font-weight: 600;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-content span {
+        font-size: 1rem;
+        color: var(--dark-color);
+        font-weight: 500;
+        display: block;
+    }
+
+    .booking-form {
+        transition: var(--transition);
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        font-size: 1rem;
+    }
+
+    .required {
+        color: var(--danger-color);
+        font-size: 1.1rem;
+        margin-right: 5px;
+    }
+
+    .select-wrapper {
+        position: relative;
+    }
+
+    .form-select, .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 15px 20px;
+        font-size: 1rem;
+        transition: var(--transition);
+        background: white;
+    }
+
+    .form-select:focus, .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+        outline: none;
+    }
+
+    .select-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--secondary-color);
+        pointer-events: none;
+        font-size: 1.2rem;
+    }
+
+    .textarea-wrapper {
+        position: relative;
+    }
+
+    .form-control {
+        resize: none;
+        line-height: 1.6;
+    }
+
+    .char-counter {
+        position: absolute;
+        bottom: 15px;
+        left: 20px;
+        font-size: 0.8rem;
+        color: var(--secondary-color);
+        background: white;
+        padding: 2px 8px;
+        border-radius: 12px;
+        border: 1px solid #e9ecef;
+    }
+
+    .char-counter .current-count.warning {
+        color: var(--warning-color);
+        font-weight: 600;
+    }
+
+    .validation-message {
+        display: block;
+        color: var(--danger-color);
+        font-size: 0.85rem;
+        margin-top: 8px;
+        font-weight: 500;
+    }
+
+    .form-hint {
+        margin-top: 8px;
+        font-size: 0.85rem;
+        color: var(--info-color);
+        display: flex;
+        align-items: center;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 30px 0;
+        border-top: 1px solid #e9ecef;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 15px 35px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(45deg, var(--primary-color), #0056b3);
+        color: white;
+        box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+        background: linear-gradient(45deg, #0056b3, #004494);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: var(--secondary-color);
+        border: 2px solid #e9ecef;
+    }
+
+    .btn-secondary:hover {
+        background: var(--light-color);
+        border-color: var(--secondary-color);
+        color: var(--dark-color);
+        transform: translateY(-2px);
+    }
+
+    /* Validation Summary */
+    .validation-summary .alert {
+        border-radius: 12px;
+        border: none;
+        padding: 20px;
+        font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .booking-header {
+            padding: 40px 0 30px;
+        }
+
+        .header-title {
+            font-size: 2rem;
+        }
+
+        .header-subtitle {
+            font-size: 1rem;
+        }
+
+        .progress-bar-wrapper {
+            padding: 15px 20px;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+        }
+
+        .card-header, .card-body {
+            padding: 20px;
+        }
+
+        .patient-info-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .info-item {
+            padding: 15px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .progress-line {
+            display: none;
+        }
+
+        .progress-bar-wrapper {
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .progress-step {
+            flex-direction: row;
+            text-align: right;
+            width: 100%;
+        }
+
+        .step-circle {
+            margin-bottom: 0;
+            margin-left: 15px;
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-in {
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    /* Focus States */
+    .form-select:focus,
+    .form-control:focus {
+        transform: translateY(-2px);
+    }
+
+    /* Loading States */
+    .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none !important;
     }
 </style>

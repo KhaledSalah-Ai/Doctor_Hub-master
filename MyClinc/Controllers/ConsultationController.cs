@@ -5,6 +5,7 @@ using DAL.Data.Repositories.MedicalRepo;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -82,6 +83,8 @@ namespace MyClinc.Controllers
             }
         }
 
+
+
         // الانتقال للنموذج الكامل من صفحة فحص الحجز
         public IActionResult GoToFullForm()
         {
@@ -120,16 +123,12 @@ namespace MyClinc.Controllers
 
         // حفظ الحجز الجديد مع البيانات الموجودة
         [HttpPost]
-        public async Task<IActionResult> BookWithExistingData(Consultation model)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BookWithExistingData(Consultation model, int ExistingConsultationId)
         {
-            var existingConsultationId = Request.Form["ExistingConsultationId"];
-            if (string.IsNullOrEmpty(existingConsultationId))
-            {
-                return RedirectToAction("BookingQuestion");
-            }
-
+            // التأكد أن فيه حجز سابق
             var existingConsultation = await _context.Consultations
-                .FirstOrDefaultAsync(c => c.ConsultationId == int.Parse(existingConsultationId));
+                .FirstOrDefaultAsync(c => c.ConsultationId == ExistingConsultationId);
 
             if (existingConsultation == null)
             {
@@ -148,24 +147,31 @@ namespace MyClinc.Controllers
                 model.Gender = existingConsultation.Gender;
                 model.MaritalStatus = existingConsultation.MaritalStatus;
                 model.WorkOrStudyPlace = existingConsultation.WorkOrStudyPlace;
+                model.IsIraqi = existingConsultation.IsIraqi;
 
-                // تعيين رسوم الاستشارة
+                // حساب رسوم الاستشارة حسب الدولة
                 var specialty = await _specialtyRepo.GetByIdAsync(model.MedicalSpecialtyId);
                 if (specialty != null)
                 {
-                    model.ConsultationFee = specialty.Price ?? 0;
+                    model.ConsultationFee = model.IsIraqi
+                        ? specialty.PriceIQD ?? 0
+                        : specialty.PriceUSD ?? 0;
                 }
 
                 model.BookingDate = DateTime.Now;
                 model.PaymentStatus = PaymentStatus.Pending;
                 model.Status = "قيد المراجعة";
 
-                return RedirectToAction("ChooseAvail", model);
-                //return RedirectToAction("BookingConfirmation", new { phoneNumber = model.PhoneNumber });
+                // نخزنها في TempData ونروح لاختيار المواعيد
+                TempData["Consultation"] = JsonConvert.SerializeObject(model);
+
+                return RedirectToAction("ChooseAvail");
             }
 
-            // في حالة وجود خطأ، إعادة تحضير البيانات
-            var specialties = (await _specialtyRepo.GetAllAsync()).Where(s => s.IsVisibleToPatient).ToList();
+            // لو فيه أخطاء في ModelState، نرجع الفيو مع البيانات
+            var specialties = (await _specialtyRepo.GetAllAsync())
+                .Where(s => s.IsVisibleToPatient).ToList();
+
             ViewBag.MedicalSpecialties = new SelectList(specialties, "Id", "Name");
             ViewBag.ExistingData = existingConsultation;
 
@@ -173,8 +179,19 @@ namespace MyClinc.Controllers
         }
 
 
-        public IActionResult ChooseAvail(Consultation model)
+        public IActionResult ChooseAvail()
         {
+            if (TempData["Consultation"] == null)
+            {
+                return RedirectToAction("Book");
+            }
+
+            var model = JsonConvert.DeserializeObject<Consultation>(
+                TempData["Consultation"].ToString()
+            );
+
+            TempData.Keep("Consultation");
+
             var availabilities = _context.advisorAvailabilities
                 .Include(a => a.Advisor)
                 .Where(a => a.Advisor.MedicalSpecialtyId == model.MedicalSpecialtyId && !a.IsBooked)
@@ -191,9 +208,19 @@ namespace MyClinc.Controllers
         }
 
 
+
         [HttpPost]
-        public async Task<IActionResult> ChooseAvail(Consultation model, int AvailabilityId)
+        public async Task<IActionResult> ChooseAvail(int AvailabilityId)
         {
+            if (TempData["Consultation"] == null)
+            {
+                return RedirectToAction("Book");
+            }
+
+            var model = JsonConvert.DeserializeObject<Consultation>(
+                TempData["Consultation"].ToString()
+            );
+
             var availability = await _context.advisorAvailabilities
                 .Include(a => a.Advisor)
                 .FirstOrDefaultAsync(a => a.AvailabilityId == AvailabilityId && !a.IsBooked);
@@ -201,11 +228,11 @@ namespace MyClinc.Controllers
             if (availability == null)
             {
                 TempData["Error"] = "الموعد المختار غير متاح، حاول مرة أخرى.";
-                return RedirectToAction("ChooseAvail", model);
+                return RedirectToAction("ChooseAvail");
             }
 
             // ربط الاستشارة بالمعاد والمستشار
-            model.AdvisorAvailabilityId= availability.AvailabilityId;
+            model.AdvisorAvailabilityId = availability.AvailabilityId;
 
             await _consultationRepo.AddAsync(model);
             await _consultationRepo.SaveAsync();
@@ -226,13 +253,19 @@ namespace MyClinc.Controllers
 
 
 
+
         // صفحة الحجز الكاملة (للمستخدمين الجدد)
         public async Task<IActionResult> Book()
         {
-            var specialties = (await _specialtyRepo.GetAllAsync()).Where(s => s.IsVisibleToPatient).ToList();
-            ViewBag.MedicalSpecialties = new SelectList(specialties, "Id", "Name");
+            var specialties = (await _specialtyRepo.GetAllAsync())
+                .Where(s => s.IsVisibleToPatient)
+                .ToList();
+
+            ViewBag.MedicalSpecialties = specialties;
+
             return View();
         }
+
 
         // حفظ الحجز الكامل
         [HttpPost]
@@ -240,26 +273,30 @@ namespace MyClinc.Controllers
         {
             if (ModelState.IsValid)
             {
-                // تعيين رسوم الاستشارة
                 var specialty = await _specialtyRepo.GetByIdAsync(model.MedicalSpecialtyId);
                 if (specialty != null)
                 {
-                    model.ConsultationFee = specialty.Price ?? 0;
+                    model.ConsultationFee = model.IsIraqi
+                        ? specialty.PriceIQD ?? 0
+                        : specialty.PriceUSD ?? 0;
                 }
 
                 model.BookingDate = DateTime.Now;
                 model.PaymentStatus = PaymentStatus.Pending;
                 model.Status = "قيد المراجعة";
 
-                // مهنخزنش هنا .. نوديه يختار المعاد
-                return RedirectToAction("ChooseAvail", model);
+                TempData["Consultation"] = JsonConvert.SerializeObject(model);
+
+                return RedirectToAction("ChooseAvail");
             }
 
             var specialties = (await _specialtyRepo.GetAllAsync())
                 .Where(s => s.IsVisibleToPatient).ToList();
-            ViewBag.MedicalSpecialties = new SelectList(specialties, "Id", "Name");
+            ViewBag.MedicalSpecialties = specialties;
+
             return View(model);
         }
+
 
 
         // صفحة تأكيد الحجز

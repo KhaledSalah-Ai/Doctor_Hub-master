@@ -1,0 +1,25 @@
+﻿@model MyClinc.ViewModels.AdvisorViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+<div class="container mt-4">
+    <h2 class="text-danger">Confirm Delete</h2>
+    <p>Are you sure you want to delete this advisor?</p>
+
+    <dl class="row">
+        <dt class="col-sm-3">Name</dt>
+        <dd class="col-sm-9">@Model.Name</dd>
+
+        <dt class="col-sm-3">Email</dt>
+        <dd class="col-sm-9">@Model.Email</dd>
+
+        <dt class="col-sm-3">Phone</dt>
+        <dd class="col-sm-9">@Model.Phone</dd>
+    </dl>
+
+    <form asp-action="DeleteAdvisor" method="post">
+        <input type="hidden" asp-for="AdvisorId" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="/Admin/Advisors" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

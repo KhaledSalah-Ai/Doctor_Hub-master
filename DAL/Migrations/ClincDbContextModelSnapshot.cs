@@ -43,6 +43,11 @@ namespace DAL.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .IsUnicode(true)
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Phone")
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
@@ -61,6 +66,7 @@ namespace DAL.Migrations
                             Email = "doctor.cardiology@example.com",
                             MedicalSpecialtyId = 1,
                             Name = "د. أحمد المصري",
+                            Password = "12345@Aa",
                             Phone = "01001234567"
                         },
                         new
@@ -69,6 +75,7 @@ namespace DAL.Migrations
                             Email = "doctor.dermatology@example.com",
                             MedicalSpecialtyId = 2,
                             Name = "د. فاطمة الزهراء",
+                            Password = "12345@Aa",
                             Phone = "01117654321"
                         });
                 });
@@ -205,10 +212,6 @@ namespace DAL.Migrations
                     b.Property<int>("AdvisorAvailabilityId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Allergies")
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("BirthCountry")
                         .IsRequired()
                         .IsUnicode(true)
@@ -220,27 +223,11 @@ namespace DAL.Migrations
                     b.Property<DateTime>("BookingDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("ChronicDiseases")
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal>("ConsultationFee")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("CurrentCountry")
                         .IsRequired()
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CurrentMedications")
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Diagnosis")
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FamilyDiseases")
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
 
@@ -253,24 +240,8 @@ namespace DAL.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("HasDigestiveIssues")
+                    b.Property<bool>("IsIraqi")
                         .HasColumnType("bit");
-
-                    b.Property<bool?>("HasNeurologicalIssues")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("HasRespiratoryIssues")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("HasUrinaryOrReproductiveIssues")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("InfectiousDiseases")
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastVaccinationDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("MaritalStatus")
                         .IsUnicode(true)
@@ -279,11 +250,7 @@ namespace DAL.Migrations
                     b.Property<int>("MedicalSpecialtyId")
                         .HasColumnType("int");
 
-                    b.Property<string>("MentalHealthIssues")
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PastSurgeries")
+                    b.Property<string>("MedicalSymptoms")
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
 
@@ -299,22 +266,10 @@ namespace DAL.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PreviousTestsResults")
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PsychiatricMedications")
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("ReceiptSent")
                         .HasColumnType("bit");
 
                     b.Property<string>("ReceiptToken")
-                        .IsUnicode(true)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RecommendedTreatment")
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
 
@@ -541,7 +496,7 @@ namespace DAL.Migrations
                             IsApproved = true,
                             IsVisible = true,
                             Rating = 5,
-                            ReviewDate = new DateTime(2025, 8, 4, 1, 1, 17, 979, DateTimeKind.Local).AddTicks(1177),
+                            ReviewDate = new DateTime(2025, 9, 4, 2, 18, 45, 487, DateTimeKind.Local).AddTicks(5313),
                             ReviewText = "خدمة ممتازة ومتابعة دقيقة من الدكتور. استفدت كثيراً من برنامج التغذية العلاجية وحققت نتائج رائعة."
                         },
                         new
@@ -552,7 +507,7 @@ namespace DAL.Migrations
                             IsApproved = true,
                             IsVisible = true,
                             Rating = 5,
-                            ReviewDate = new DateTime(2025, 7, 18, 1, 1, 17, 979, DateTimeKind.Local).AddTicks(1250),
+                            ReviewDate = new DateTime(2025, 8, 18, 2, 18, 45, 487, DateTimeKind.Local).AddTicks(5370),
                             ReviewText = "أشكر الدكتور على الاهتمام والمتابعة المستمرة. العلاج النفسي ساعدني كثيراً في تحسين حالتي."
                         },
                         new
@@ -563,7 +518,7 @@ namespace DAL.Migrations
                             IsApproved = true,
                             IsVisible = true,
                             Rating = 4,
-                            ReviewDate = new DateTime(2025, 7, 28, 1, 1, 17, 979, DateTimeKind.Local).AddTicks(1258),
+                            ReviewDate = new DateTime(2025, 8, 28, 2, 18, 45, 487, DateTimeKind.Local).AddTicks(5377),
                             ReviewText = "تجربة جيدة جداً مع العيادة. الطاقم الطبي محترف والخدمة سريعة ومنظمة."
                         });
                 });
@@ -686,7 +641,10 @@ namespace DAL.Migrations
                         .IsUnicode(true)
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<decimal?>("Price")
+                    b.Property<decimal?>("PriceIQD")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("PriceUSD")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
@@ -701,7 +659,8 @@ namespace DAL.Migrations
                             IconClass = "🥗",
                             IsVisibleToPatient = true,
                             Name = "التغذية العلاجية",
-                            Price = 30m
+                            PriceIQD = 30m,
+                            PriceUSD = 30m
                         },
                         new
                         {
@@ -710,7 +669,8 @@ namespace DAL.Migrations
                             IconClass = "⚕️",
                             IsVisibleToPatient = true,
                             Name = "الجراحة العامة",
-                            Price = 50m
+                            PriceIQD = 40m,
+                            PriceUSD = 40m
                         },
                         new
                         {
@@ -719,7 +679,8 @@ namespace DAL.Migrations
                             IconClass = "🧠",
                             IsVisibleToPatient = true,
                             Name = "الطب النفسي",
-                            Price = 40m
+                            PriceIQD = 30m,
+                            PriceUSD = 30m
                         },
                         new
                         {
@@ -897,7 +858,7 @@ namespace DAL.Migrations
                             PhoneNumber = "+966501234567",
                             Position = "مدير المستشفى",
                             Status = 1,
-                            SubmissionDate = new DateTime(2025, 6, 18, 1, 1, 17, 979, DateTimeKind.Local).AddTicks(1294)
+                            SubmissionDate = new DateTime(2025, 7, 18, 2, 18, 45, 487, DateTimeKind.Local).AddTicks(5410)
                         },
                         new
                         {
@@ -913,7 +874,7 @@ namespace DAL.Migrations
                             PhoneNumber = "+966557654321",
                             Position = "مدير التسويق",
                             Status = 0,
-                            SubmissionDate = new DateTime(2025, 7, 18, 1, 1, 17, 979, DateTimeKind.Local).AddTicks(1301)
+                            SubmissionDate = new DateTime(2025, 8, 18, 2, 18, 45, 487, DateTimeKind.Local).AddTicks(5416)
                         });
                 });
 

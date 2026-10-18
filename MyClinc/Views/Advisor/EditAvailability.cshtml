@@ -4,35 +4,531 @@
     Layout = "~/Views/Shared/_AdvisorLayout.cshtml";
 }
 
-<h2 class="mb-4">@ViewData["Title"]</h2>
+<style>
+    .edit-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .edit-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -10%;
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: pulse 4s ease-in-out infinite;
+    }
+    
+    @@keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+        50% { transform: scale(1.1) rotate(180deg); opacity: 1; }
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 25px;
+        padding: 3rem;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        border: none;
+        position: relative;
+        overflow: hidden;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    }
+    
+    .custom-form-group {
+        margin-bottom: 2rem;
+        position: relative;
+    }
+    
+    .custom-label {
+        font-weight: 700;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .custom-label i {
+        margin-left: 10px;
+        color: #667eea;
+        font-size: 1.1rem;
+    }
+    
+    .custom-input {
+        border: 3px solid #e9ecef;
+        border-radius: 15px;
+        padding: 15px 20px;
+        transition: all 0.4s ease;
+        font-size: 16px;
+        background: #f8f9fa;
+        position: relative;
+    }
+    
+    .custom-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.3rem rgba(102, 126, 234, 0.15);
+        background: white;
+        outline: none;
+        transform: translateY(-2px);
+    }
+    
+    .custom-input:hover {
+        border-color: #ced4da;
+        background: white;
+    }
+    
+    .input-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+    
+    .custom-input:focus + .input-icon {
+        color: #667eea;
+    }
+    
+    .custom-btn {
+        border-radius: 15px;
+        padding: 15px 35px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.4s ease;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        margin: 10px;
+        font-size: 14px;
+    }
+    
+    .custom-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transition: all 0.4s ease;
+        transform: translate(-50%, -50%);
+        z-index: 0;
+    }
+    
+    .custom-btn:hover::before {
+        width: 400px;
+        height: 400px;
+    }
+    
+    .custom-btn span {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .btn-primary-custom {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-primary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary-custom {
+        background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        color: white;
+        box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+    }
+    
+    .btn-secondary-custom:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(108, 117, 125, 0.4);
+    }
+    
+    .validation-error {
+        color: #dc3545;
+        font-size: 14px;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    .validation-error i {
+        margin-left: 8px;
+    }
+    
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    
+    .breadcrumb-custom {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .breadcrumb-custom .breadcrumb-item {
+        color: #6c757d;
+    }
+    
+    .breadcrumb-custom .breadcrumb-item.active {
+        color: #667eea;
+        font-weight: 600;
+    }
+    
+    .breadcrumb-custom .breadcrumb-item + .breadcrumb-item::before {
+        content: "←";
+        color: #6c757d;
+    }
+    
+    .form-info-box {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border: none;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border-right: 4px solid #2196f3;
+    }
+    
+    .form-info-box h6 {
+        color: #1565c0;
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+    }
+    
+    .form-info-box p {
+        color: #0d47a1;
+        margin: 0;
+        font-size: 14px;
+    }
+    
+    .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 3rem;
+        flex-wrap: wrap;
+    }
+    
+    @@media (max-width: 768px) {
+        .form-card {
+            padding: 2rem 1.5rem;
+            margin: 0 15px;
+        }
+        
+        .button-group {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .custom-btn {
+            width: 100%;
+            max-width: 250px;
+        }
+    }
+    
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
 
-<form asp-action="EditAvailability" method="post">
-    <input type="hidden" asp-for="AvailabilityId" />
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+</div>
 
-    <div class="form-group mb-3">
-        <label asp-for="Date" class="control-label"></label>
-        <input asp-for="Date" type="date" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
-        <span asp-validation-for="Date" class="text-danger"></span>
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb breadcrumb-custom">
+        <li class="breadcrumb-item">
+            <a asp-action="Dashboard" asp-controller="Advisor" class="text-decoration-none">
+                <i class="fas fa-home"></i> الرئيسية
+            </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">تعديل الموعد</li>
+    </ol>
+</nav>
+
+<!-- Header Section -->
+<div class="edit-header text-center">
+    <div class="row align-items-center justify-content-center">
+        <div class="col-auto">
+            <div class="display-4 mb-3">
+                <i class="fas fa-edit"></i>
+            </div>
+            <h2 class="mb-2 fw-bold">تعديل الموعد</h2>
+            <p class="mb-0 opacity-75">قم بتحديث بيانات موعدك بسهولة</p>
+        </div>
     </div>
+</div>
 
-    <div class="form-group mb-3">
-        <label asp-for="StartTime" class="control-label"></label>
-        <input asp-for="StartTime" type="time" class="form-control" />
-        <span asp-validation-for="StartTime" class="text-danger"></span>
+<!-- Form Section -->
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <!-- معلومات مفيدة -->
+        <div class="form-info-box">
+            <h6><i class="fas fa-info-circle me-2"></i>معلومات مهمة</h6>
+            <p>يمكنك تعديل تاريخ ووقت ومدة الموعد. تأكد من اختيار تاريخ مستقبلي ومدة مناسبة للاستشارة.</p>
+        </div>
+
+        <div class="form-card">
+            <form asp-action="EditAvailability" method="post" id="editForm" novalidate>
+                <input type="hidden" asp-for="AvailabilityId" />
+                
+                <!-- حقل التاريخ -->
+                <div class="custom-form-group">
+                    <label asp-for="Date" class="custom-label">
+                        <i class="fas fa-calendar-day"></i>
+                        تاريخ الموعد
+                    </label>
+                    <div class="position-relative">
+                        <input asp-for="Date" type="date" 
+                               class="form-control custom-input" 
+                               min="@DateTime.Today.ToString("yyyy-MM-dd")" 
+                               required />
+                        <i class="fas fa-calendar-alt input-icon"></i>
+                    </div>
+                    <span asp-validation-for="Date" class="validation-error">
+                    </span>
+                </div>
+                
+                <!-- حقل وقت البدء -->
+                <div class="custom-form-group">
+                    <label asp-for="StartTime" class="custom-label">
+                        <i class="fas fa-clock"></i>
+                        وقت بداية الموعد
+                    </label>
+                    <div class="position-relative">
+                        <input asp-for="StartTime" type="time" 
+                               class="form-control custom-input" 
+                               required />
+                        <i class="fas fa-clock input-icon"></i>
+                    </div>
+                    <span asp-validation-for="StartTime" class="validation-error">
+                    </span>
+                </div>
+                
+                <!-- حقل المدة -->
+                <div class="custom-form-group">
+                    <label asp-for="DurationMinutes" class="custom-label">
+                        <i class="fas fa-hourglass-half"></i>
+                        مدة الموعد (بالدقائق)
+                    </label>
+                    <div class="position-relative">
+                        <input asp-for="DurationMinutes" type="number" 
+                               class="form-control custom-input" 
+                               min="10" max="180" step="5" 
+                               required />
+                        <i class="fas fa-stopwatch input-icon"></i>
+                    </div>
+                    <span asp-validation-for="DurationMinutes" class="validation-error">
+                    </span>
+                    <small class="form-text text-muted mt-2">
+                        <i class="fas fa-lightbulb me-1"></i>
+                        المدة المقترحة: 30-60 دقيقة للاستشارات العادية
+                    </small>
+                </div>
+                
+                <!-- أزرار التحكم -->
+                <div class="button-group">
+                    <button type="submit" class="custom-btn btn-primary-custom">
+                        <span>
+                            <i class="fas fa-save me-2"></i>
+                            حفظ التعديلات
+                        </span>
+                    </button>
+                    
+                    <a asp-action="Dashboard" class="custom-btn btn-secondary-custom">
+                        <span>
+                            <i class="fas fa-times me-2"></i>
+                            إلغاء
+                        </span>
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="DurationMinutes" class="control-label"></label>
-        <input asp-for="DurationMinutes" type="number" min="10" class="form-control" />
-        <span asp-validation-for="DurationMinutes" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">
-        <i class="fas fa-edit"></i> حفظ التعديلات
-    </button>
-    <a asp-action="Dashboard" class="btn btn-secondary">إلغاء</a>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            // تحسين تفاعل النموذج
+            $('.custom-input').on('focus', function() {
+                $(this).parent().addClass('focused');
+            });
+            
+            $('.custom-input').on('blur', function() {
+                $(this).parent().removeClass('focused');
+            });
+            
+            // التحقق من صحة البيانات في الوقت الفعلي
+            $('#editForm').on('submit', function(e) {
+                let isValid = true;
+                
+                // إظهار شاشة التحميل
+                $('#loadingOverlay').show();
+                
+                // التحقق من التاريخ
+                const dateInput = $('input[name="Date"]');
+                const selectedDate = new Date(dateInput.val());
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                if (selectedDate < today) {
+                    showError(dateInput, 'يجب أن يكون التاريخ في المستقبل');
+                    isValid = false;
+                }
+                
+                // التحقق من الوقت
+                const timeInput = $('input[name="StartTime"]');
+                if (!timeInput.val()) {
+                    showError(timeInput, 'يرجى اختيار وقت الموعد');
+                    isValid = false;
+                }
+                
+                // التحقق من المدة
+                const durationInput = $('input[name="DurationMinutes"]');
+                const duration = parseInt(durationInput.val());
+                if (duration < 10 || duration > 180) {
+                    showError(durationInput, 'يجب أن تكون المدة بين 10 و 180 دقيقة');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    $('#loadingOverlay').hide();
+                    
+                    // إظهار رسالة تنبيه
+                    $('html, body').animate({
+                        scrollTop: $('.validation-error:first').offset().top - 100
+                    }, 500);
+                }
+            });
+            
+            // دالة لإظهار أخطاء التحقق
+            function showError(input, message) {
+                const errorSpan = input.closest('.custom-form-group').find('.validation-error');
+                errorSpan.text(message).show();
+                input.addClass('is-invalid');
+                
+                // إزالة الخطأ عند التفاعل مع الحقل
+                input.one('input change', function() {
+                    $(this).removeClass('is-invalid');
+                    errorSpan.hide();
+                });
+            }
+            
+            // تحسين تفاعل الأزرار
+            $('.custom-btn').on('mouseenter', function() {
+                $(this).addClass('btn-hover');
+            }).on('mouseleave', function() {
+                $(this).removeClass('btn-hover');
+            });
+            
+            // تأثير الريبل على الأزرار
+            $('.custom-btn').on('click', function(e) {
+                let ripple = $('<span class="ripple-effect"></span>');
+                let offset = $(this).offset();
+                let x = e.pageX - offset.left;
+                let y = e.pageY - offset.top;
+                
+                ripple.css({
+                    position: 'absolute',
+                    left: x + 'px',
+                    top: y + 'px',
+                    width: '0',
+                    height: '0',
+                    background: 'rgba(255, 255, 255, 0.5)',
+                    borderRadius: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    animation: 'ripple-animation 0.6s ease-out'
+                });
+                
+                $(this).append(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+            
+            // إضافة أنيميشن CSS للريبل
+            $('<style>')
+                .prop('type', 'text/css')
+                .html(`
+                    @@keyframes ripple-animation {
+                        to {
+                            width: 200px;
+                            height: 200px;
+                            opacity: 0;
+                        }
+                    }
+                `)
+                .appendTo('head');
+                
+            // إخفاء شاشة التحميل عند انتهاء تحميل الصفحة
+            $(window).on('load', function() {
+                $('#loadingOverlay').fadeOut();
+            });
+            
+            // تحسين تجربة الاستخدام على الموبايل
+            if (window.innerWidth <= 768) {
+                $('.form-card').addClass('mobile-optimized');
+                $('.custom-input').attr('autocomplete', 'off');
+            }
+        });
+    </script>
 }

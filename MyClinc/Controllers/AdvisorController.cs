@@ -55,19 +55,16 @@ namespace MyClinc.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (_advisorCredentials.ContainsKey(model.Email))
-                {
-                    if (_advisorCredentials[model.Email] == model.Password)
-                    {
-                        var advisor = await _dbContext.Advisors.FirstOrDefaultAsync(a => a.Email == model.Email);
-                        if (advisor != null)
-                        {
-                            _httpContextAccessor.HttpContext.Session.SetString("AdvisorEmail", advisor.Email);
-                            _httpContextAccessor.HttpContext.Session.SetInt32("AdvisorId", advisor.AdvisorId);
+                // نبحث عن الدكتور في الداتابيز
+                var advisor = await _dbContext.Advisors
+                    .FirstOrDefaultAsync(a => a.Email == model.Email && a.Password == model.Password);
 
-                            return RedirectToAction("Dashboard");
-                        }
-                    }
+                if (advisor != null)
+                {
+                    _httpContextAccessor.HttpContext.Session.SetString("AdvisorEmail", advisor.Email);
+                    _httpContextAccessor.HttpContext.Session.SetInt32("AdvisorId", advisor.AdvisorId);
+
+                    return RedirectToAction("Dashboard");
                 }
 
                 ModelState.AddModelError(string.Empty, "البريد الإلكتروني أو كلمة المرور غير صحيحة.");
@@ -84,8 +81,9 @@ namespace MyClinc.Controllers
             return RedirectToAction("Login");
         }
 
+
         // GET: /Advisor/Dashboard
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(int page = 1, int pageSize = 15)
         {
             var advisorEmail = _httpContextAccessor.HttpContext.Session.GetString("AdvisorEmail");
             if (string.IsNullOrEmpty(advisorEmail))
@@ -94,7 +92,6 @@ namespace MyClinc.Controllers
             }
 
             var advisor = await _dbContext.Advisors
-                .Include(a => a.Availabilities)
                 .FirstOrDefaultAsync(a => a.Email == advisorEmail);
 
             if (advisor == null)
@@ -102,8 +99,33 @@ namespace MyClinc.Controllers
                 return RedirectToAction("Login");
             }
 
-            return View(advisor); 
+            // اجمالي عدد المواعيد
+            var totalAvailabilities = await _dbContext.advisorAvailabilities
+                .Where(a => a.AdvisorId == advisor.AdvisorId)
+                .CountAsync();
+
+            // هات المواعيد بالترتيب مع Skip/Take
+            var availabilities = await _dbContext.advisorAvailabilities
+                .Where(a => a.AdvisorId == advisor.AdvisorId)
+                .OrderBy(a => a.Date)
+                .ThenBy(a => a.StartTime)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // ابني ViewModel يضم الـ advisor + المواعيد + معلومات الصفحات
+            var viewModel = new AdvisorDashboardViewModel
+            {
+                Advisor = advisor,
+                Availabilities = availabilities,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalItems = totalAvailabilities
+            };
+
+            return View(viewModel);
         }
+
         [HttpGet]
         public IActionResult AddAvailability()
         {
@@ -192,19 +214,23 @@ namespace MyClinc.Controllers
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> DeleteAvailability(int id)
+        [HttpPost]
+        public IActionResult DeleteAvailability(int id)
         {
-            var availability = await _dbContext.advisorAvailabilities
-                .FirstOrDefaultAsync(a => a.AvailabilityId == id);
-
+            var availability = _dbContext.advisorAvailabilities.FirstOrDefault(a => a.AvailabilityId == id);
             if (availability == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "الموعد غير موجود.";
+                return RedirectToAction("Dashboard");
             }
 
-            return View(availability);
+            _dbContext.advisorAvailabilities.Remove(availability);
+            _dbContext.SaveChanges();
+
+            TempData["SuccessMessage"] = "تم حذف الموعد بنجاح.";
+            return RedirectToAction("Dashboard");
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -245,7 +271,7 @@ namespace MyClinc.Controllers
 
         // GET: /Advisor/MyConsultations
         [HttpGet]
-        public async Task<IActionResult> MyConsultations()
+        public async Task<IActionResult> MyConsultations(int page = 1, int pageSize = 15)
         {
             var advisorId = _httpContextAccessor.HttpContext.Session.GetInt32("AdvisorId");
             if (!advisorId.HasValue)
@@ -253,15 +279,64 @@ namespace MyClinc.Controllers
                 return RedirectToAction("Login");
             }
 
-            // هنجمع كل الاستشارات المرتبطة بمواعيد هذا الدكتور
-            var consultations = await _dbContext.Consultations
+            var query = _dbContext.Consultations
                 .Include(c => c.MedicalSpecialty)
                 .Include(c => c.AdvisorAvailability)
                 .Where(c => c.AdvisorAvailability.AdvisorId == advisorId.Value)
-                .OrderByDescending(c => c.BookingDate)
+                .OrderByDescending(c => c.BookingDate);
+
+            // عدد كل الاستشارات
+            var totalCount = await query.CountAsync();
+
+            // الاستشارات الخاصة بالصفحة الحالية
+            var consultations = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
-            return View(consultations);
+            // نرجع ViewModel عشان نبعث البيانات + معلومات الباجينج
+            var model = new ConsultationPaginationViewModel
+            {
+                Consultations = consultations,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var consultation = await _dbContext.Consultations
+                .Include(c => c.MedicalSpecialty)
+                .Include(c => c.AdvisorAvailability)
+                .FirstOrDefaultAsync(c => c.ConsultationId == id);
+
+            if (consultation == null)
+            {
+                return NotFound();
+            }
+
+            return View(consultation);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var consultation = await _dbContext.Consultations.FindAsync(id);
+            if (consultation == null)
+            {
+                return NotFound();
+            }
+
+            _dbContext.Consultations.Remove(consultation);
+            await _dbContext.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "تم حذف الاستشارة بنجاح ✅";
+            return RedirectToAction("MyConsultations");
         }
 
 

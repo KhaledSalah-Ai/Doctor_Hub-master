@@ -1,245 +1,773 @@
-﻿@* @model DAL.Data.Models.Advisor
-@{
-    ViewData["Title"] = "لوحة التحكم";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
-}
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
-
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h4 class="m-0 font-weight-bold text-primary">مرحباً بك، @Model.Name</h4>
-        <p class="mb-0">هنا يمكنك إدارة مواعيدك المتاحة.</p>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <!-- نموذج إضافة موعد جديد -->
-            <div class="col-md-4 border-right">
-                <h5><i class="fas fa-plus-circle"></i> إضافة موعد جديد</h5>
-                <hr>
-                <form asp-action="CreateAvailability" asp-controller="Advisor" method="post">
-                    <div class="form-group mb-3">
-                        <label for="Date" class="control-label">التاريخ</label>
-                        <input type="date" name="Date" class="form-control" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="StartTime" class="control-label">وقت البدء</label>
-                        <input type="time" name="StartTime" class="form-control" required />
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="DurationMinutes" class="control-label">المدة (بالدقائق)</label>
-                        <input type="number" name="DurationMinutes" class="form-control" value="30" required min="10" />
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-save"></i> حفظ الموعد
-                    </button>
-                </form>
-            </div>
-
-            <!-- عرض المواعيد الحالية -->
-            <div class="col-md-8">
-                <h5><i class="fas fa-calendar-alt"></i> قائمة المواعيد</h5>
-                <hr>
-                <div class="table-responsive">
-                    @if (Model.Availabilities.Any())
-                    {
-                        <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>التاريخ</th>
-                                    <th>وقت البدء</th>
-                                    <th>المدة</th>
-                                    <th>الحالة</th>
-                                    <th>إجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var availability in Model.Availabilities)
-                                {
-                                    <tr>
-                                        <td>@availability.Date.ToString("dd-MM-yyyy")</td>
-                                        <td>@availability.StartTime.ToString(@"hh\:mm")</td>
-                                        <td>@availability.DurationMinutes دقيقة</td>
-                                        <td>
-                                            @if (availability.IsBooked)
-                                            {
-                                                <span class="badge badge-pill badge-danger ">محجوز</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge badge-pill badge-success">متاح</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (!availability.IsBooked)
-                                            {
-                                                <a asp-action="EditAvailability" asp-controller="Advisor" asp-route-id="@availability.AvailabilityId" class="btn btn-sm btn-warning">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form asp-action="DeleteAvailability" asp-controller="Advisor" asp-route-id="@availability.AvailabilityId" method="post" ...>
-                                                    <button type="submit" class="btn btn-sm btn-danger" title="حذف">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-muted">لا يوجد إجراء متاح</span>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info text-center">لا توجد مواعيد متاحة حالياً.</div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
- *@
- @model DAL.Data.Models.Advisor
+﻿@model MyClinc.ViewModels.AdvisorDashboardViewModel
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
     ViewData["Title"] = "لوحة التحكم";
     Layout = "~/Views/Shared/_AdvisorLayout.cshtml";
 }
 
-<!-- رسائل النجاح أو الخطأ -->
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["SuccessMessage"]
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-}
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["ErrorMessage"]
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-}
+<style>
+    .dashboard-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 35px 60px rgba(0, 0, 0, 0.15);
+    }
+    
+    .header-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .header-gradient::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 100" fill="white" opacity="0.1"><polygon points="0,20 50,40 100,20 150,60 200,30 250,70 300,40 350,80 400,50 450,90 500,60 550,100 600,70 650,90 700,60 750,80 800,50 850,70 900,40 950,60 1000,30 1000,100 0,100"/></svg>') repeat-x;
+        animation: wave 10s linear infinite;
+    }
+    
+    @@keyframes wave {
+        0% { background-position-x: 0; }
+        100% { background-position-x: 1000px; }
+    }
+    
+    .welcome-text {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .form-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .form-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+    
+    @@keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .form-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .modern-input {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 15px;
+        color: white;
+        padding: 12px 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .modern-input:focus {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+    
+    .modern-input::placeholder {
+        color: rgba(255, 255, 255, 0.8);
+    }
+    
+    .modern-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+    
+    .gradient-btn {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        border: none;
+        border-radius: 25px;
+        padding: 12px 30px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+    }
+    
+    .gradient-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(79, 172, 254, 0.6);
+        background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+    }
+    
+    .appointments-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+    
+    .section-header {
+        background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        margin: -2rem -2rem 2rem -2rem;
+        padding: 1.5rem 2rem;
+        border-radius: 20px 20px 0 0;
+        color: #333;
+        font-weight: 700;
+    }
+    
+    .modern-table {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: none;
+    }
+    
+    .modern-table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .modern-table thead th {
+        border: none;
+        padding: 1rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .modern-table tbody tr {
+        transition: all 0.3s ease;
+        border: none;
+    }
+    
+    .modern-table tbody tr:hover {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        transform: scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modern-table tbody td {
+        border: none;
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.8rem;
+    }
+    
+    .badge-available {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+    }
+    
+    .badge-booked {
+        background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
+    }
+    
+    .action-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 3px;
+        transition: all 0.3s ease;
+        font-size: 14px;
+    }
+    
+    .btn-edit {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        color: #d4670a;
+        box-shadow: 0 4px 15px rgba(252, 182, 159, 0.4);
+    }
+    
+    .btn-delete {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-delete::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.6s;
+    }
+    
+    .btn-delete:hover::before {
+        left: 100%;
+    }
+    
+    .btn-delete:hover {
+        background: linear-gradient(135deg, #ff5252 0%, #ff8a80 100%);
+        box-shadow: 0 8px 25px rgba(255, 82, 82, 0.6);
+    }
+    
+    .action-btn:hover {
+        transform: translateY(-3px) scale(1.1);
+    }
+    
+    .alert-modern {
+        border: none;
+        border-radius: 15px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .alert-success-modern {
+        background: linear-gradient(135deg, #a8f0c6 0%, #3dd5f3 100%);
+        color: #0d7377;
+    }
+    
+    .alert-danger-modern {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        color: #d63031;
+    }
+    
+    .pagination-modern .page-link {
+        border: none;
+        border-radius: 10px;
+        margin: 0 3px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transition: all 0.3s ease;
+    }
+    
+    .pagination-modern .page-link:hover,
+    .pagination-modern .page-item.active .page-link {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+    }
+    
+    .no-appointments {
+        background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        border-radius: 15px;
+        padding: 3rem;
+        text-align: center;
+        color: #d4670a;
+        font-weight: 600;
+        box-shadow: 0 10px 30px rgba(252, 182, 159, 0.3);
+    }
+    
+    .floating-elements {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        pointer-events: none;
+    }
+    
+    .floating-circle {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .floating-circle:nth-child(1) { width: 80px; height: 80px; top: 20%; left: 20%; animation-delay: 0s; }
+    .floating-circle:nth-child(2) { width: 60px; height: 60px; top: 60%; left: 80%; animation-delay: 2s; }
+    .floating-circle:nth-child(3) { width: 40px; height: 40px; top: 80%; left: 40%; animation-delay: 4s; }
+    
+    @@keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    /* Enhanced Delete Modal Styles */
+    .delete-modal {
+        backdrop-filter: blur(10px);
+        background: rgba(0, 0, 0, 0.5);
+    }
+    
+    .delete-modal-content {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+        border-radius: 25px;
+        border: none;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .delete-modal-header {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+        color: white;
+        border: none;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .delete-modal-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: rotate 15s linear infinite;
+    }
+    
+    .delete-modal-body {
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+    }
+    
+    .delete-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        animation: pulse 2s infinite;
+    }
+    
+    @@keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .delete-text {
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .delete-subtext {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    
+    .delete-modal-footer {
+        background: rgba(248, 249, 255, 0.5);
+        border: none;
+        padding: 1.5rem 2rem;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+    
+    .btn-cancel {
+        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        color: #4338ca;
+        border: none;
+        border-radius: 15px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(199, 210, 254, 0.4);
+    }
+    
+    .btn-cancel:hover {
+        background: linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(165, 180, 252, 0.6);
+        color: #3730a3;
+    }
+    
+    .btn-delete-confirm {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+        color: white;
+        border: none;
+        border-radius: 15px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-delete-confirm::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: left 0.6s;
+    }
+    
+    .btn-delete-confirm:hover::before {
+        left: 100%;
+    }
+    
+    .btn-delete-confirm:hover {
+        background: linear-gradient(135deg, #ff5252 0%, #f44336 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 82, 82, 0.6);
+        color: white;
+    }
+    
+    .appointment-info {
+        background: rgba(255, 107, 107, 0.1);
+        padding: 1rem;
+        border-radius: 15px;
+        margin: 1rem 0;
+        border: 2px solid rgba(255, 107, 107, 0.2);
+    }
+    
+    .appointment-detail {
+        margin: 0.5rem 0;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .shake-animation {
+        animation: shake 0.5s ease-in-out;
+    }
+    
+    @@keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+</style>
 
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h4 class="m-0 font-weight-bold text-primary">مرحباً بك، @Model.Name</h4>
-        <p class="mb-0">هنا يمكنك إدارة مواعيدك المتاحة.</p>
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <!-- نموذج إضافة موعد جديد -->
-            <div class="col-md-4 border-right">
-                <h5><i class="fas fa-plus-circle"></i> إضافة موعد جديد</h5>
-                <hr>
-                <form asp-action="AddAvailability" asp-controller="Advisor" method="post">
-                    <div class="form-group mb-3">
-                        <label for="Date" class="control-label">التاريخ</label>
-                        <input type="date" name="Date" class="form-control" required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="StartTime" class="control-label">وقت البدء</label>
-                        <input type="time" name="StartTime" class="form-control" required />
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="DurationMinutes" class="control-label">المدة (بالدقائق)</label>
-                        <input type="number" name="DurationMinutes" class="form-control" value="30" required min="10" />
-                    </div>
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-save"></i> حفظ الموعد
-                    </button>
-                </form>
+<div class="dashboard-container">
+    <div class="container">
+        <!-- رسائل النجاح أو الخطأ -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success-modern alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger-modern alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <div class="glass-card">
+            <div class="header-gradient text-white p-4">
+                <div class="floating-elements">
+                    <div class="floating-circle"></div>
+                    <div class="floating-circle"></div>
+                    <div class="floating-circle"></div>
+                </div>
+                <div class="welcome-text">
+                    <h2 class="mb-2 fw-bold">
+                        <i class="fas fa-user-md me-3"></i>
+                        مرحباً بك، @Model.Advisor.Name
+                    </h2>
+                    <p class="mb-0 opacity-90">إدارة مواعيدك المتاحة بطريقة احترافية وسهلة</p>
+                </div>
             </div>
 
-            <!-- عرض المواعيد الحالية -->
-            <div class="col-md-8">
-                <h5><i class="fas fa-calendar-alt"></i> قائمة المواعيد</h5>
-                <hr>
-                <div class="table-responsive">
-                    @if (Model.Availabilities.Any())
-                    {
-                        <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th><i class="fas fa-calendar-day"></i> التاريخ</th>
-                                    <th><i class="fas fa-clock"></i> وقت البدء</th>
-                                    <th>المدة</th>
-                                    <th>الحالة</th>
-                                    <th>إجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var availability in Model.Availabilities.OrderBy(a => a.Date).ThenBy(a => a.StartTime))
+            <div class="p-4">
+                <div class="row g-4">
+                    <!-- نموذج إضافة موعد جديد -->
+                    <div class="col-lg-4">
+                        <div class="form-card">
+                            <div class="form-content">
+                                <h4 class="mb-4 fw-bold">
+                                    <i class="fas fa-plus-circle me-2"></i>
+                                    إضافة موعد جديد
+                                </h4>
+                                <form asp-action="AddAvailability" asp-controller="Advisor" method="post">
+                                    <div class="mb-3">
+                                        <label class="modern-label" for="Date">
+                                            <i class="fas fa-calendar-day me-2"></i>التاريخ
+                                        </label>
+                                        <input type="date" name="Date" class="form-control modern-input" 
+                                               required min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="modern-label" for="StartTime">
+                                            <i class="fas fa-clock me-2"></i>وقت البدء
+                                        </label>
+                                        <input type="time" name="StartTime" class="form-control modern-input" required />
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label class="modern-label" for="DurationMinutes">
+                                            <i class="fas fa-hourglass-half me-2"></i>المدة (بالدقائق)
+                                        </label>
+                                        <input type="number" name="DurationMinutes" class="form-control modern-input" 
+                                               value="30" required min="10" />
+                                    </div>
+                                    
+                                    <button type="submit" class="btn gradient-btn w-100">
+                                        <i class="fas fa-save me-2"></i>
+                                        حفظ الموعد
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- عرض المواعيد الحالية -->
+                    <div class="col-lg-8">
+                        <div class="appointments-section">
+                            <div class="section-header">
+                                <h4 class="mb-0 fw-bold">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    قائمة المواعيد المتاحة
+                                </h4>
+                            </div>
+                            
+                            @if (Model.Availabilities.Any())
+                            {
+                                <div class="table-responsive">
+                                    <table class="table modern-table">
+                                        <thead>
+                                            <tr>
+                                                <th><i class="fas fa-calendar-day me-2"></i>التاريخ</th>
+                                                <th><i class="fas fa-clock me-2"></i>وقت البدء</th>
+                                                <th><i class="fas fa-hourglass-half me-2"></i>المدة</th>
+                                                <th><i class="fas fa-info-circle me-2"></i>الحالة</th>
+                                                <th class="text-center"><i class="fas fa-cogs me-2"></i>إجراءات</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var availability in Model.Availabilities.OrderBy(a => a.Date).ThenBy(a => a.StartTime))
+                                            {
+                                                <tr>
+                                                    <td class="fw-semibold">@availability.Date.ToString("yyyy/MM/dd")</td>
+                                                    <td class="fw-semibold">@availability.StartTime.ToString(@"hh\:mm")</td>
+                                                    <td>@availability.DurationMinutes دقيقة</td>
+                                                    <td>
+                                                        @if (availability.IsBooked)
+                                                        {
+                                                            <span class="status-badge badge-booked">
+                                                                <i class="fas fa-times-circle me-1"></i>محجوز
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="status-badge badge-available">
+                                                                <i class="fas fa-check-circle me-1"></i>متاح
+                                                            </span>
+                                                        }
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if (!availability.IsBooked)
+                                                        {
+                                                            <a asp-action="EditAvailability" asp-controller="Advisor" 
+                                                               asp-route-id="@availability.AvailabilityId" 
+                                                               class="action-btn btn-edit" title="تعديل">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <button type="button" 
+                                                                    class="action-btn btn-delete" 
+                                                                    title="حذف"
+                                                                    data-bs-toggle="modal" 
+                                                                    data-bs-target="#deleteModal"
+                                                                    data-id="@availability.AvailabilityId"
+                                                                    data-date="@availability.Date.ToString("yyyy/MM/dd")"
+                                                                    data-time="@availability.StartTime.ToString(@"hh\:mm")"
+                                                                    data-duration="@availability.DurationMinutes">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted fst-italic">محجوز</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- Pagination -->
+                                @if (Model.TotalPages > 1)
                                 {
-                                    <tr>
-                                        <td>@availability.Date.ToString("yyyy/MM/dd")</td>
-                                        <td>@availability.StartTime.ToString(@"hh\:mm")</td>
-                                        <td>@availability.DurationMinutes دقيقة</td>
-                                        <td>
-                                            @if (availability.IsBooked)
+                                    <nav class="mt-4">
+                                        <ul class="pagination pagination-modern justify-content-center">
+                                            @for (int i = 1; i <= Model.TotalPages; i++)
                                             {
-                                                <span class="badge badge-pill badge-danger alert-danger">محجوز</span>
+                                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                                    <a class="page-link" asp-action="Dashboard" asp-route-page="@i">@i</a>
+                                                </li>
                                             }
-                                            else
-                                            {
-                                                <span class="badge badge-pill badge-success alert-success">متاح</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @if (!availability.IsBooked)
-                                            {
-                                                <a asp-action="EditAvailability" asp-controller="Advisor" asp-route-id="@availability.AvailabilityId" class="btn btn-sm btn-warning" title="تعديل">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a asp-action="DeleteAvailability" asp-controller="Advisor" asp-route-id="@availability.AvailabilityId" class="btn btn-sm btn-danger" title="حذف">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-muted">لا يوجد إجراء متاح</span>
-                                            }
-                                        </td>
-                                    </tr>
+                                        </ul>
+                                    </nav>
                                 }
-                            </tbody>
-                        </table>
-                    }
-                    else
-                    {
-                        <div class="alert alert-info text-center">لا توجد مواعيد متاحة حالياً.</div>
-                    }
+                            }
+                            else
+                            {
+                                <div class="no-appointments">
+                                    <i class="fas fa-calendar-times fa-3x mb-3 d-block"></i>
+                                    <h5 class="fw-bold">لا توجد مواعيد متاحة حالياً</h5>
+                                    <p class="mb-0">ابدأ بإضافة مواعيدك المتاحة لتتمكن من استقبال الحجوزات</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Enhanced Delete Confirmation Modal -->
+<div class="modal fade delete-modal" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content delete-modal-content">
+            <div class="modal-header delete-modal-header">
+                <h5 class="modal-title fw-bold" id="deleteModalLabel" style="position: relative; z-index: 2;">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    تأكيد الحذف
+                </h5>
+            </div>
+            <div class="modal-body delete-modal-body">
+                <div class="delete-icon">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <h6 class="delete-text">هل أنت متأكد من حذف هذا الموعد؟</h6>
+                <p class="delete-subtext">لن تتمكن من التراجع عن هذا الإجراء</p>
+                
+                <div class="appointment-info">
+                    <div class="appointment-detail">
+                        <i class="fas fa-calendar-day me-2 text-danger"></i>
+                        <strong>التاريخ:</strong> <span id="deleteDate"></span>
+                    </div>
+                    <div class="appointment-detail">
+                        <i class="fas fa-clock me-2 text-danger"></i>
+                        <strong>الوقت:</strong> <span id="deleteTime"></span>
+                    </div>
+                    <div class="appointment-detail">
+                        <i class="fas fa-hourglass-half me-2 text-danger"></i>
+                        <strong>المدة:</strong> <span id="deleteDuration"></span> دقيقة
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer delete-modal-footer">
+                <button type="button" class="btn btn-cancel" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>إلغاء
+                </button>
+                <form id="deleteForm" asp-action="DeleteAvailability" asp-controller="Advisor" method="post" style="display: inline;">
+                    <input type="hidden" id="deleteId" name="id" />
+                    <button type="submit" class="btn btn-delete-confirm">
+                        <i class="fas fa-trash me-2"></i>حذف نهائي
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
-            $('#dataTable').DataTable({
-                language: {
-                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/ar.json'
+            // إضافة تأثيرات تفاعلية للجدول
+            $('.modern-table tbody tr').hover(
+                function() {
+                    $(this).find('td').addClass('animate__animated animate__pulse');
+                },
+                function() {
+                    $(this).find('td').removeClass('animate__animated animate__pulse');
                 }
+            );
+
+            // تأثير النقر على الأزرار
+            $('.action-btn').click(function() {
+                $(this).addClass('animate__animated animate__rubberBand');
+                setTimeout(() => {
+                    $(this).removeClass('animate__animated animate__rubberBand');
+                }, 1000);
             });
+
+            // التحقق من صحة النموذج مع تأثيرات بصرية
+            $('form').submit(function(e) {
+                const submitBtn = $(this).find('button[type="submit"]');
+                submitBtn.html('<i class="fas fa-spinner fa-spin me-2"></i>جاري الحفظ...');
+                submitBtn.prop('disabled', true);
+                
+                // إعادة تعيين الزر بعد ثانيتين (في حالة وجود أخطاء)
+                setTimeout(() => {
+                    submitBtn.html('<i class="fas fa-save me-2"></i>حفظ الموعد');
+                    submitBtn.prop('disabled', false);
+                }, 2000);
+            });
+
+            // تأثير للرسائل التنبيهية
+            $('.alert-modern').each(function() {
+                $(this).hide().slideDown(500);
+            });
+        });
+
+        var deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget; // الزرار اللي فتح المودال
+            var id = button.getAttribute('data-id');
+            var date = button.getAttribute('data-date');
+            var time = button.getAttribute('data-time');
+            var duration = button.getAttribute('data-duration');
+
+            // حط القيم في المودال
+            document.getElementById('deleteId').value = id;
+            document.getElementById('deleteDate').innerText = date;
+            document.getElementById('deleteTime').innerText = time;
+            document.getElementById('deleteDuration').innerText = duration;
         });
     </script>
 }

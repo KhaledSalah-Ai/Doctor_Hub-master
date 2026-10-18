@@ -1,4 +1,4 @@
-using DAL.Data;
+ï»¿using DAL.Data;
 using DAL.Data.Models;
 using DAL.Data.Repositories.CoursesRepo;
 using Microsoft.AspNetCore.Authorization;
@@ -15,16 +15,21 @@ namespace MyClinc.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ClincDbContext _dbContext;
 
-        public CoursesController(ClincDbContext dbContext,ICourseRepository courseRepository, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public CoursesController(
+            ClincDbContext dbContext,
+            ICourseRepository courseRepository,
+            UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
-            _courseRepository= courseRepository;
-            _userManager= userManager;
-            _signInManager= signInManager;
-            _dbContext= dbContext;
+            _courseRepository = courseRepository;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _dbContext = dbContext;
         }
+
         public IActionResult Index(int page = 1)
         {
-            int pageSize = 4; // ÚÏÏ ÇáßæÑÓÇÊ Ýí ßá ÕÝÍÉ
+            int pageSize = 4; // ??? ???????? ?? ?? ????
             var allCourses = _courseRepository.GetAll();
             var paginatedCourses = allCourses
                 .Skip((page - 1) * pageSize)
@@ -40,8 +45,6 @@ namespace MyClinc.Controllers
             return View(paginatedCourses);
         }
 
-        
-        
         [Authorize]
         public IActionResult Enroll(int id)
         {
@@ -49,19 +52,20 @@ namespace MyClinc.Controllers
 
             var existingRequest = _dbContext.CoursePurchases
                 .FirstOrDefault(r => r.CourseId == id && r.UserId == userId);
+
             if (existingRequest != null)
             {
                 if (existingRequest.paymentStatuse == PaymentStatuse.Pending)
                 {
-                    TempData["Message"] = "ÇäÊ ÞãÊ ÈÇáÝÚá ÈÍÌÒ åÐÇ ÇáßæÑÓ æáßä ääÊÙÑ ãäß ÏÝÚ ÇáãÈáÛ ÇáãÓÊÍÞ ÇæáÇ";
+                    TempData["Message"] = "Ù„Ù‚Ø¯ Ù‚Ù…Øª Ù…Ø³Ø¨Ù‚Ù‹Ø§ Ø¨Ø·Ù„Ø¨ Ø´Ø±Ø§Ø¡ Ù‡Ø°Ø§ Ø§Ù„ÙƒÙˆØ±Ø³ØŒ Ø¨Ø±Ø¬Ø§Ø¡ Ø§Ù†ØªØ¸Ø§Ø± Ø§Ù„Ù…ÙˆØ§ÙÙ‚Ø©.";
                 }
                 else if (existingRequest.paymentStatuse == PaymentStatuse.Approved)
                 {
-                    TempData["Message"] = "ÇäÊ Êãáß åÐÇ ÇáßæÑÓ ÈÇáÝÚá";
+                    TempData["Message"] = "Ù„Ù‚Ø¯ ØªÙ… Ø´Ø±Ø§Ø¡ Ù‡Ø°Ø§ Ø§Ù„ÙƒÙˆØ±Ø³ Ø¨Ø§Ù„ÙØ¹Ù„ØŒ ÙŠÙ…ÙƒÙ†Ùƒ Ø§Ù„Ø¨Ø¯Ø¡ ÙÙŠ Ø§Ù„ØªØ¹Ù„Ù… Ù…Ø¨Ø§Ø´Ø±Ø©.";
                 }
-                else 
+                else
                 {
-                    TempData["Message"] = "Êã ÑÝÖ ØáÈß íÑÌí ÇáÇÑÓÇá áäÇ Úáí ÇáæÇÊÓÇÈ";
+                    TempData["Message"] = "ØªÙ… Ø±ÙØ¶ Ø·Ù„Ø¨Ùƒ Ø§Ù„Ø³Ø§Ø¨Ù‚ Ø¹Ù„Ù‰ Ù‡Ø°Ø§ Ø§Ù„ÙƒÙˆØ±Ø³. ÙŠÙ…ÙƒÙ†Ùƒ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø© Ù…Ø±Ø© Ø£Ø®Ø±Ù‰ Ù„Ø§Ø­Ù‚Ù‹Ø§.";
                 }
                 return RedirectToAction("Index");
             }
@@ -78,14 +82,18 @@ namespace MyClinc.Controllers
             _dbContext.CoursePurchases.Add(request);
             _dbContext.SaveChanges();
 
-            // ÊÍæíá ãÈÇÔÑ Åáì WhatsApp
             var course = _dbContext.Courses.FirstOrDefault(c => c.Id == id);
-            string message = $"ÃåáÇð¡ ÃäÇ ãåÊã ÈÔÑÇÁ ßæÑÓ: {course?.Title} ÈÓÚÑ {course?.Price} Ìäíå. ÈÑíÏí ÇáÇáßÊÑæäí: {User.Identity.Name}";
-            string whatsappNumber = "201011845887"; // ÑÞã ÇáæÇÊÓÇÈ ÈÏæä +
-            string whatsappUrl = $"https://wa.me/{whatsappNumber}?text={Uri.EscapeDataString(message)}";
+            string message = $"Ù…Ø±Ø­Ø¨Ø§ {User.Identity.Name}ØŒ Ù„Ù‚Ø¯ Ù‚Ù…Øª Ø¨Ø·Ù„Ø¨ Ø§Ù„ÙƒÙˆØ±Ø³: {course?.Title} Ø¨Ø³Ø¹Ø± {course?.Price} Ø¯ÙˆÙ„Ø§Ø±.";
+
+            string encodedMessage = Uri.EscapeDataString(message);
+
+            string whatsappNumber = "201011845887"; // Ø±Ù‚Ù… Ø§Ù„ÙˆØ§ØªØ³Ø§Ø¨ Ù…Ù† ØºÙŠØ± +
+            string whatsappUrl = $"https://wa.me/{whatsappNumber}?text={encodedMessage}";
 
             return Redirect(whatsappUrl);
         }
+
+
         [Authorize]
         public IActionResult MyCourses()
         {
@@ -96,23 +104,30 @@ namespace MyClinc.Controllers
                 .Include(r => r.Course)
                 .Select(r => r.Course)
                 .ToList();
+
             return View(courses);
         }
+
         [HttpGet]
         public IActionResult Details(int id)
         {
-            Course course = _dbContext.Courses.Include(c=>c.Chapters).FirstOrDefault(c=>c.Id==id);
+            Course course = _dbContext.Courses
+                .Include(c => c.Chapters)
+                .FirstOrDefault(c => c.Id == id);
+
             return View(course);
         }
+
         [Authorize]
         [HttpGet]
         public IActionResult MyDetails(int id)
         {
-            Course course = _dbContext.Courses.Include(v => v.Videos).Include(c => c.Chapters).FirstOrDefault(c => c.Id == id);
+            Course course = _dbContext.Courses
+                .Include(v => v.Videos)
+                .Include(c => c.Chapters)
+                .FirstOrDefault(c => c.Id == id);
+
             return View(course);
         }
-     
-
     }
 }
-

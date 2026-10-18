@@ -6,11 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - لوحة التحكم الإدارية</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MyClinc.styles.css" asp-append-version="true" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.13/css/intlTelInput.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <link href="~/css/AdminLayout.css" rel="stylesheet" />
     @RenderSection("Styles", required: false)
@@ -44,17 +47,17 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "DoctorRequests" ? "active" : "")"
-                       asp-controller="Admin" asp-action="DoctorRequests">
-                        <i class="fas fa-user-md"></i>
-                        طلبات الأطباء
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Specialties" ? "active" : "")"
+                       asp-controller="Admin" asp-action="Specialties">
+                        <i class="fas fa-stethoscope"></i>
+                        التخصصات الطبية
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Specialties" ? "active" : "")"
-                       asp-controller="Admin" asp-action="Specialties">
-                        <i class="fas fa-medical-kit"></i>
-                        التخصصات الطبية
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Advisors" ? "active" : "")"
+                       asp-controller="Admin" asp-action="Advisors">
+                        <i class="fas fa-user-md"></i>
+                        الأطباء
                     </a>
                 </li>
                 <li class="nav-item">
@@ -91,16 +94,17 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Partnerships" ? "active" : "")"
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Courses" ? "active" : "")"
                        asp-controller="Admin" asp-action="Courses">
-                        <i class="fas fa-handshake"></i>
+                        <i class="fas fa-book-open"></i>
                         الكورسات
                     </a>
                 </li>
+
                 <li class="nav-item">
-                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Partnerships" ? "active" : "")"
+                    <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Purchases" ? "active" : "")"
                        asp-controller="Admin" asp-action="Purchases">
-                        <i class="fas fa-handshake"></i>
+                        <i class="fas fa-shopping-cart"></i>
                         طلبات شراء الكورسات
                     </a>
                 </li>

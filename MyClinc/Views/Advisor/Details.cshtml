@@ -1,0 +1,71 @@
+﻿@model DAL.Data.Models.Consultation
+
+@{
+    ViewData["Title"] = "تفاصيل الاستشارة";
+    Layout = "~/Views/Shared/_AdvisorLayout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-3 border-0">
+        <div class="card-header bg-primary text-white text-center fs-4 fw-bold py-3">
+            تفاصيل الاستشارة
+        </div>
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold mb-3 text-secondary">بيانات المريض</h5>
+            <div class="row mb-3">
+                <div class="col-md-6"><strong>الاسم الكامل:</strong> @Model.PatientName</div>
+                <div class="col-md-6"><strong>رقم الهاتف:</strong> @Model.PhoneNumber</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6"><strong>رقم الهاتف الدولي:</strong> @Model.FullPhoneNumber</div>
+                <div class="col-md-6"><strong>تاريخ الميلاد:</strong> @Model.BirthDate.ToString("dd/MM/yyyy")</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6"><strong>بلد الميلاد:</strong> @Model.BirthCountry</div>
+                <div class="col-md-6"><strong>بلد السكن الحالي:</strong> @Model.CurrentCountry</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6"><strong>جهة العمل/الدراسة:</strong> @Model.WorkOrStudyPlace</div>
+                <div class="col-md-6"><strong>الجنس:</strong> @Model.Gender</div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-6"><strong>الحالة الاجتماعية:</strong> @Model.MaritalStatus</div>
+            </div>
+
+            <h5 class="fw-bold mb-3 text-secondary">تفاصيل الاستشارة</h5>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <strong>رسوم الاستشارة:</strong>
+                    @(Model.IsIraqi ? $"دينار {Model.ConsultationFee}" : $"دولار {Model.ConsultationFee}")
+                </div>
+                <div class="col-md-6"><strong>حالة الدفع:</strong> @Model.PaymentStatus</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6"><strong>تم إرسال الوصل؟</strong> @(Model.ReceiptSent ? "نعم" : "لا")</div>
+                <div class="col-md-6"><strong>تاريخ الحجز:</strong> @Model.BookingDate.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6"><strong>حالة الاستشارة:</strong> @Model.Status</div>
+                <div class="col-md-6"><strong>الموعد:</strong> @Model.AdvisorAvailability?.Date.ToString("dd/MM/yyyy") - @Model.AdvisorAvailability?.StartTime</div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6"><strong>الاعراض الطبية:</strong> @Model.MedicalSymptoms</div>
+            </div>
+        </div>
+        <div class="card-footer text-center">
+            <a asp-action="MyConsultations" class="btn btn-secondary px-4">رجوع</a>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+    .card {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+</style>

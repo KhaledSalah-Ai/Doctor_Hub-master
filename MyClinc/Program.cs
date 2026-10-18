@@ -6,6 +6,7 @@ using DAL.Data.Repositories.DoctorRequest;
 using DAL.Data.Repositories.MedicalRepo;
 using DAL.Data.Repositories.PartnershipRepo;
 using DAL.Data.Repositories.WhatsAppRepo;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyClinc.Services;
@@ -30,6 +31,10 @@ namespace MyClinc
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
                 options.Cookie.Name = "MyClinc.Admin.Session";
+            });
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 1024 * 1024 * 200; // 200MB
             });
 
             // ضبط DbContext مع Identity
@@ -72,6 +77,8 @@ namespace MyClinc
                 options.AccessDeniedPath = "/Account/AccessDenied";
             });
 
+
+           
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

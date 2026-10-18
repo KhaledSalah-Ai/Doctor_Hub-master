@@ -1,59 +1,538 @@
 ﻿@model DAL.Data.Models.Consultation
 
 @{
-    ViewData["Title"] = "اختر موعد الاستشارة";
+    ViewData["Title"] = "حجز استشارة طبية";
 }
 
-<div class="container mt-5 mb-5">
-    <!-- خليت في margin من تحت -->
-    <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="card shadow-lg border-0 rounded-3">
-                <div class="card-header bg-primary text-white text-center rounded-top">
-                    <h4 class="mb-0">اختر موعد الاستشارة</h4>
-                </div>
-                <div class="card-body p-4">
-                    <form asp-action="ChooseAvail" method="post">
-                        @Html.HiddenFor(m => m.PatientName)
-                        @Html.HiddenFor(m => m.PhoneNumber)
-                        @Html.HiddenFor(m => m.FullPhoneNumber)
-                        @Html.HiddenFor(m => m.BirthDate)
-                        @Html.HiddenFor(m => m.BirthCountry)
-                        @Html.HiddenFor(m => m.CurrentCountry)
-                        @Html.HiddenFor(m => m.Gender)
-                        @Html.HiddenFor(m => m.MaritalStatus)
-                        @Html.HiddenFor(m => m.WorkOrStudyPlace)
-                        @Html.HiddenFor(m => m.MedicalSpecialtyId)
-                        @Html.HiddenFor(m => m.ConsultationFee)
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-                        <div class="form-group mb-4">
-                            <label for="AvailabilityId" class="form-label fw-bold">المواعيد المتاحة</label>
-                            <select id="AvailabilityId" name="AvailabilityId"
+<style>
+    * {
+        font-family: 'Cairo', sans-serif;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+    }
+    
+    .main-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        margin: 20px 0;
+    }
+    
+    .main-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    }
+    
+    .header-section {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .header-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        animation: float 20s ease-in-out infinite;
+    }
+    
+    @@keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(30px, -30px) rotate(120deg); }
+        66% { transform: translate(-20px, 20px) rotate(240deg); }
+    }
+    
+    .header-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        animation: pulse 2s ease-in-out infinite;
+        position: relative;
+        z-index: 1;
+    }
+    
+    @@keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .header-title {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 30px 0;
+        position: relative;
+    }
+    
+    .step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #6c757d;
+        position: relative;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+    
+    .step.active {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        transform: scale(1.2);
+    }
+    
+    .step.completed {
+        background: #28a745;
+        color: white;
+    }
+    
+    .step-line {
+        height: 3px;
+        background: #e9ecef;
+        flex: 1;
+        margin: 0 10px;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+    
+    .step-line.completed {
+        background: #28a745;
+    }
+    
+    .info-section {
+        padding: 30px;
+    }
+    
+    .info-card {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border-left: 5px solid #4facfe;
+        transition: all 0.3s ease;
+    }
+    
+    .info-card:hover {
+        transform: translateX(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 150px;
+    }
+    
+    .info-value {
+        color: #212529;
+        font-weight: 500;
+        text-align: left;
+    }
+    
+    .health-issues {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .health-badge {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .no-issues-badge {
+        background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .appointment-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 30px;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    .appointment-title {
+        color: #495057;
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .form-select {
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        padding: 15px 20px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .form-select:focus {
+        border-color: #4facfe;
+        box-shadow: 0 0 0 0.2rem rgba(79, 172, 254, 0.25);
+        transform: translateY(-2px);
+    }
+    
+    .confirm-btn {
+        background: linear-gradient(135deg, #00b894 0%, #00a085 100%);
+        border: none;
+        border-radius: 12px;
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+    }
+    
+    .confirm-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .confirm-btn:hover::before {
+        left: 100%;
+    }
+    
+    .confirm-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0, 184, 148, 0.4);
+    }
+    
+    .footer-note {
+        background: #e3f2fd;
+        color: #1565c0;
+        padding: 20px;
+        text-align: center;
+        border-radius: 0 0 20px 20px;
+        font-weight: 500;
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.6s ease-in;
+    }
+    
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+   @@media (max-width: 768px) {
+        .main-card {
+            margin: 10px;
+            border-radius: 15px;
+        }
+        
+        .header-section {
+            padding: 20px;
+        }
+        
+        .info-section, .appointment-section {
+            padding: 20px;
+        }
+        
+        .step-indicator {
+            margin: 20px 0;
+        }
+        
+        .step {
+            width: 35px;
+            height: 35px;
+            font-size: 0.9rem;
+        }
+        
+        .info-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .info-label {
+            min-width: auto;
+        }
+    }
+</style>
+
+<div class="container mt-3 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="main-card fade-in">
+                <!-- Header Section -->
+                <div class="header-section">
+                    <div class="header-icon">
+                        <i class="bi bi-heart-pulse"></i>
+                    </div>
+                    <div class="header-title">
+                        <h2 class="mb-2">حجز استشارة طبية</h2>
+                        <p class="mb-0">مراجعة البيانات وتأكيد الموعد</p>
+                    </div>
+                </div>
+                
+                
+                <!-- Patient Information -->
+                <div class="info-section">
+                    <h5 class="mb-4" style="color: #495057; font-weight: 700;">
+                        <i class="bi bi-person-circle me-2"></i>
+                        بيانات المريض
+                    </h5>
+                    
+                    <div class="info-card">
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-person"></i>
+                                الاسم الكامل
+                            </div>
+                            <div class="info-value">@Model.PatientName</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-telephone"></i>
+                                رقم الهاتف
+                            </div>
+                            <div class="info-value">@Model.PhoneNumber</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-calendar"></i>
+                                تاريخ الميلاد
+                            </div>
+                            <div class="info-value">@Model.BirthDate.ToString("yyyy/MM/dd")</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-flag"></i>
+                                الجنسية
+                            </div>
+                            <div class="info-value">@((Model.IsIraqi == true) ? "عراقي" : "غير عراقي")</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-geo-alt"></i>
+                                بلد الميلاد
+                            </div>
+                            <div class="info-value">@Model.BirthCountry</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-house"></i>
+                                بلد السكن الحالي
+                            </div>
+                            <div class="info-value">@Model.CurrentCountry</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-briefcase"></i>
+                                مكان العمل/الدراسة
+                            </div>
+                            <div class="info-value">@Model.WorkOrStudyPlace</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-gender-ambiguous"></i>
+                                الجنس
+                            </div>
+                            <div class="info-value">@Model.Gender</div>
+                        </div>
+                        
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-heart"></i>
+                                الحالة الاجتماعية
+                            </div>
+                            <div class="info-value">@Model.MaritalStatus</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-heart"></i>
+                                الاعراض الطبية
+                            </div>
+                            <div class="info-value">@Model.MedicalSymptoms</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">
+                                <i class="bi bi-heart"></i>
+                                سعر الاستشارة
+                            </div>
+                            @if (Model.IsIraqi)
+                            {
+                                <div class="info-value">دينار @Model.ConsultationFee</div>
+                            }
+                            else
+                            {
+                                <div class="info-value">دولار @Model.ConsultationFee</div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Appointment Selection -->
+                <div class="appointment-section">
+                    <h5 class="appointment-title">
+                        <i class="bi bi-calendar-check"></i>
+                        اختيار موعد الاستشارة
+                    </h5>
+                    
+                    <form asp-action="ChooseAvail" method="post" id="appointmentForm">
+                        <div class="mb-4">
+                            <label for="AvailabilityId" class="form-label fw-bold">
+                                <i class="bi bi-clock me-2"></i>
+                                المواعيد المتاحة
+                            </label>
+                            <select id="AvailabilityId" name="AvailabilityId" 
                                     class="form-select shadow-sm"
-                                    asp-items="ViewBag.Availabilities">
+                                    asp-items="ViewBag.Availabilities" required>
                                 <option value="">-- اختر الموعد المناسب --</option>
                             </select>
                         </div>
-
+                        
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-success btn-lg shadow">
-                                <i class="bi bi-calendar-check"></i> تأكيد الحجز
+                            <button type="submit" class="confirm-btn" id="confirmBtn">
+                                <i class="bi bi-calendar-check me-2"></i>
+                                تأكيد حجز الاستشارة
                             </button>
                         </div>
                     </form>
                 </div>
-                <div class="card-footer text-center text-muted small">
-                    بمجرد تأكيد الحجز، سيتم التواصل معك لتأكيد الموعد.
+                
+                <!-- Footer Note -->
+                <div class="footer-note">
+                    <i class="bi bi-info-circle me-2"></i>
+                    بمجرد تأكيد الحجز، سيتم التواصل معك خلال 24 ساعة لتأكيد الموعد وإرسال رابط الاستشارة الإلكترونية.
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('appointmentForm');
+        const selectElement = document.getElementById('AvailabilityId');
+        const confirmBtn = document.getElementById('confirmBtn');
+        
+        // Add hover effects to info cards
+        document.querySelectorAll('.info-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+        
+        // Add selection change animation
+        selectElement.addEventListener('change', function() {
+            if (this.value) {
+                this.style.borderColor = '#28a745';
+                this.style.backgroundColor = '#f8fff9';
+                setTimeout(() => {
+                    this.style.borderColor = '#e9ecef';
+                    this.style.backgroundColor = 'white';
+                }, 1000);
+            }
+        });
+        
+        // Form submission with loading state
+        form.addEventListener('submit', function(e) {
+            if (!selectElement.value) {
+                e.preventDefault();
+                selectElement.focus();
+                selectElement.style.borderColor = '#dc3545';
+                selectElement.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    selectElement.style.borderColor = '#e9ecef';
+                    selectElement.style.animation = '';
+                }, 3000);
+                return;
+            }
+            
+            // Show loading state
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="bi bi-clock me-2"></i>جاري التأكيد...';
+        });
+    });
+    
+    // Add shake animation for validation
+    const style = document.createElement('style');
+    style.textContent = `
+        @@keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 <style>
-    .card {
+    .main-card, .info-card {
         display: block !important;
         opacity: 1 !important;
         visibility: visible !important;
     }
+
 </style>

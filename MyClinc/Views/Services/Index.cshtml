@@ -71,10 +71,17 @@
                                 <p class="service-description">@specialty.Description</p>
                             }
                             
-                            @if (specialty.Price.HasValue)
+                            @if (specialty.PriceIQD.HasValue)
                             {
                                 <div class="price-section">
-                                    <span class="price-amount">$@specialty.Price</span>
+                                    <span class="price-amount">$@specialty.PriceIQD</span>
+                                    <small class="price-label">للاستشارة الواحدة</small>
+                                </div>
+                            }
+                            @if (specialty.PriceUSD.HasValue)
+                            {
+                                <div class="price-section">
+                                    <span class="price-amount">$@specialty.PriceUSD</span>
                                     <small class="price-label">للاستشارة الواحدة</small>
                                 </div>
                             }

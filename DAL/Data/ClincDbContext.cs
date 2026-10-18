@@ -99,7 +99,8 @@ namespace DAL.Data
                     Name = "التغذية العلاجية",
                     IconClass = "🥗",
                     Description = "خطط غذائية متخصصة وعلاج اضطرابات التغذية",
-                    Price = 30,
+                    PriceIQD = 30,
+                    PriceUSD=30,
                     IsVisibleToPatient = true
                 },
                 new MedicalSpecialty
@@ -108,7 +109,8 @@ namespace DAL.Data
                     Name = "الجراحة العامة",
                     IconClass = "⚕️",
                     Description = "استشارات جراحية متقدمة وتقييم الحالات",
-                    Price = 50,
+                    PriceIQD = 40,
+                    PriceUSD = 40,
                     IsVisibleToPatient = true
                 },
                 new MedicalSpecialty
@@ -117,7 +119,8 @@ namespace DAL.Data
                     Name = "الطب النفسي",
                     IconClass = "🧠",
                     Description = "علاج الاضطرابات النفسية والدعم النفسي",
-                    Price = 40,
+                    PriceIQD = 30,
+                    PriceUSD = 30,
                     IsVisibleToPatient = true
                 },
                 new MedicalSpecialty
@@ -173,7 +176,8 @@ namespace DAL.Data
                     Name = "د. أحمد المصري",
                     Email = "doctor.cardiology@example.com",
                     Phone = "01001234567",
-                    MedicalSpecialtyId = 1 
+                    MedicalSpecialtyId = 1 ,
+                    Password="12345@Aa"
                 },
                 new Advisor
                 {
@@ -181,7 +185,9 @@ namespace DAL.Data
                     Name = "د. فاطمة الزهراء",
                     Email = "doctor.dermatology@example.com",
                     Phone = "01117654321",
-                    MedicalSpecialtyId = 2 
+                    MedicalSpecialtyId = 2 ,
+                    Password = "12345@Aa"
+
                 });
 
 

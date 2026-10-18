@@ -116,12 +116,25 @@
                                 @Model.BookingDate.ToString("dd/MM/yyyy - hh:mm tt")
                             </p>
                         </div>
-                        <div class="info-item mb-3">
-                            <label class="fw-bold text-muted">رسوم الاستشارة:</label>
-                            <p class="mb-0">
-                                <span class="fw-bold text-success fs-5">$@Model.ConsultationFee</span>
-                            </p>
-                        </div>
+                        @if (Model.IsIraqi)
+                        {
+                            <div class="info-item mb-3">
+                                <label class="fw-bold text-muted">رسوم الاستشارة:</label>
+                                <p class="mb-0">
+                                    <span class="fw-bold text-success fs-5">دينار @Model.ConsultationFee</span>
+                                </p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="info-item mb-3">
+                                <label class="fw-bold text-muted">رسوم الاستشارة:</label>
+                                <p class="mb-0">
+                                    <span class="fw-bold text-success fs-5">دولار @Model.ConsultationFee</span>
+                                </p>
+                            </div>
+                        }
+                        
                     </div>
                 </div>
             </div>
@@ -139,93 +152,14 @@
                 </div>
                 <div class="card-body p-4">
                     <div class="row g-3">
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">وصف الحالة:</label>
+                        <div class="info-item mb-3">
+                            <label class="fw-bold text-muted">الاعراض الطبية:</label>
+                            <p class="mb-0">
+                                <span class="fw-bold text-success fs-5">@Model.MedicalSymptoms</span>
+                            </p>
                         </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">أمراض مزمنة:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.ChronicDiseases ?? "لا يوجد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">حساسية تجاه أدوية أو أغذية:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.Allergies ?? "لا يوجد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">عمليات جراحية سابقة:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.PastSurgeries ?? "لا يوجد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">أدوية حالية:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.CurrentMedications ?? "لا يوجد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">أمراض معدية سابقة:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.InfectiousDiseases ?? "لا يوجد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">مشاكل في الجهاز التنفسي:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.HasRespiratoryIssues.HasValue ? (Model.HasRespiratoryIssues.Value ? "نعم" : "لا") : "غير محدد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">مشاكل في الجهاز الهضمي:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.HasDigestiveIssues.HasValue ? (Model.HasDigestiveIssues.Value ? "نعم" : "لا") : "غير محدد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">مشاكل في الجهاز العصبي:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.HasNeurologicalIssues.HasValue ? (Model.HasNeurologicalIssues.Value ? "نعم" : "لا") : "غير محدد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">مشاكل في الجهاز البولي أو التناسلي:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.HasUrinaryOrReproductiveIssues.HasValue ? (Model.HasUrinaryOrReproductiveIssues.Value ? "نعم" : "لا") : "غير محدد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">تاريخ عائلي لأمراض وراثية:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.FamilyDiseases ?? "لا يوجد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">مشاكل نفسية:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.MentalHealthIssues ?? "لا يوجد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">أدوية نفسية:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.PsychiatricMedications ?? "لا يوجد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">نتائج فحوصات وتحاليل سابقة:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.PreviousTestsResults ?? "لا يوجد")</p>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <label class="fw-bold text-muted">تاريخ آخر تطعيم:</label>
-                            <div class="bg-light p-3 rounded mt-2">
-                                <p class="mb-0">@(Model.LastVaccinationDate?.ToString("dd/MM/yyyy") ?? "لا يوجد")</p>
-                            </div>
-                        </div>
+                        
+                       
                     </div>
                 </div>
             </div>
@@ -252,10 +186,21 @@
                                 </span>
                             </p>
                         </div>
+                        @if(Model.IsIraqi)
+                        {
+                            <div class="col-md-6">
+                                <label class="fw-bold text-muted">المبلغ المطلوب:</label>
+                                <p class="mb-0 fw-bold text-success fs-5">دينار @Model.ConsultationFee</p>
+                            </div>
+                        }
+                        else
+                        {
                         <div class="col-md-6">
                             <label class="fw-bold text-muted">المبلغ المطلوب:</label>
-                            <p class="mb-0 fw-bold text-success fs-5">$@Model.ConsultationFee</p>
+                            <p class="mb-0 fw-bold text-success fs-5">دولار @Model.ConsultationFee</p>
                         </div>
+                        }
+                       
                     </div>
                 </div>
             </div>

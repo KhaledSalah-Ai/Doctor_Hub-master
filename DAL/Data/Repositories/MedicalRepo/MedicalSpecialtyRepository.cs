@@ -12,7 +12,7 @@ namespace DAL.Data.Repositories.MedicalRepo
     {
         public async Task<IEnumerable<MedicalSpecialty>> GetAllAsync()
         {
-            return await _dbContext.MedicalSpecialties.ToListAsync();
+            return await _dbContext.MedicalSpecialties.Include(s=>s.Advisor).ToListAsync();
         }
 
         public async Task<MedicalSpecialty?> GetByIdAsync(int id)
